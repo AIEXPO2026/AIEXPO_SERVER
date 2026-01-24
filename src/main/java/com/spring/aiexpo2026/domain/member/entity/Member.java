@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @SuperBuilder
@@ -25,8 +27,10 @@ public class Member {
 	private String password;
 
 	@Email
-	public String email;
+	private String email;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
+
+	private LocalDateTime timeStamp;
 }

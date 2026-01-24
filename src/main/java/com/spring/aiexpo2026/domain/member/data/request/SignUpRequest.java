@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDateTime;
+
 public record SignUpRequest(
 
 		@NotBlank
@@ -29,6 +31,7 @@ public record SignUpRequest(
 				.password(encodedPassword)
 				.email(email)
 				.role(Role.USER)
+				.timeStamp(LocalDateTime.now())
 				.build();
 	}
 }
