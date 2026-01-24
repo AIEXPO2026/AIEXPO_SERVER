@@ -1,0 +1,40 @@
+package com.spring.aiexpo2026.domain.member.service.impl;
+
+import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
+import com.spring.aiexpo2026.domain.member.data.request.SignUpRequest;
+import com.spring.aiexpo2026.domain.member.data.response.SignUpResponse;
+import com.spring.aiexpo2026.domain.member.entity.Member;
+import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.member.service.MemberService;
+import com.spring.aiexpo2026.global.data.ApiResponse;
+import com.spring.aiexpo2026.global.exception.ApplicationException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class MemberServiceImpl implements MemberService {
+
+	private final MemberRepository memberRepository;
+	private final PasswordEncoder passwordEncoder;
+
+	@Override
+	@Transactional
+	public ApiResponse<SignUpResponse> signUp(SignUpRequest request) {
+		if (memberRepository.existsByUsername(request.username())) {
+			throw new ApplicationException(AuthStatusCode.USERNAME_ALREADY_EXIST);
+		}
+		if (memberRepository.existsByEmail(request.email())) {
+			throw new ApplicationException(AuthStatusCode.EMAIL_ALREADY_EXIST);
+		}
+
+		String encodedPassword = passwordEncoder.encode(request.password());
+		Member member = request.toEntity(encodedPassword);
+
+		memberRepository.save(member);
+
+		return ApiResponse.ok(SignUpResponse.success());
+	}
+}
