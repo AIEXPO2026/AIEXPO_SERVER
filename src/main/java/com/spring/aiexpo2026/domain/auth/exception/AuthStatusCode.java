@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum AuthStatusCode implements StatusCode {
 
+	INVALID_TOKEN("INVALID_TOKEN", "잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED),
 	CANNOT_GENERATE_TOKEN("CANNOT_GENERATE_TOKEN", "토큰을 발급할 수 없습니다.", HttpStatus.UNAUTHORIZED),
 	INVALID_CREDENTIALS("INVALID_CREDENTIALS", "아이디 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
 	ALREADY_LOGGED_OUT("ALREADY_LOGGED_OUT", "이미 로그아웃 되었습니다.", HttpStatus.BAD_REQUEST),

@@ -1,13 +1,18 @@
 package com.spring.aiexpo2026.domain.member.service.impl;
 
+import com.spring.aiexpo2026.domain.auth.data.request.GenerateTokenRequest;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
+import com.spring.aiexpo2026.domain.auth.service.TokenService;
+import com.spring.aiexpo2026.domain.member.data.request.SignInRequest;
 import com.spring.aiexpo2026.domain.member.data.request.SignUpRequest;
+import com.spring.aiexpo2026.domain.member.data.response.SignInResponse;
 import com.spring.aiexpo2026.domain.member.data.response.SignUpResponse;
 import com.spring.aiexpo2026.domain.member.entity.Member;
 import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.member.service.MemberService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +24,7 @@ public class MemberServiceImpl implements MemberService {
 
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final TokenService tokenService;
 
 	@Override
 	@Transactional
@@ -36,5 +42,25 @@ public class MemberServiceImpl implements MemberService {
 		memberRepository.save(member);
 
 		return ApiResponse.ok(SignUpResponse.success());
+	}
+
+	@Override
+	public ApiResponse<SignInResponse> signIn(SignInRequest request,
+											  HttpServletResponse response) {
+		Member member = memberRepository.findByUsername(request.username()).orElseThrow(() ->
+				new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS));
+
+		if (!passwordEncoder.matches(request.password(), member.getPassword())) {
+			throw new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS);
+		}
+
+		GenerateTokenRequest generateTokenRequest = new GenerateTokenRequest (
+				member.getUsername(),
+				member.getRole()
+		);
+
+		String accessToken = tokenService.generateAccessToken(generateTokenRequest, response);
+
+		return ApiResponse.ok(SignInResponse.success(accessToken));
 	}
 }

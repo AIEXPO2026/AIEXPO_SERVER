@@ -54,13 +54,22 @@ public class JwtProvider {
 				.compact();
 	}
 
-	public String getEmail(String token) {
+	public String getUsername(String token) {
 		Claims claims = Jwts.parser()
 				.verifyWith(key)
 				.build()
 				.parseSignedClaims(token)
 				.getPayload();
 		return claims.getSubject();
+	}
+
+	public String getEmail(String token) {
+		Claims claims = Jwts.parser()
+				.verifyWith(key)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
+		return claims.get("email", String.class);
 	}
 
 	public String getRole(String token) {
