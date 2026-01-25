@@ -16,6 +16,7 @@ public enum AuthStatusCode implements StatusCode {
 
 	USERNAME_ALREADY_EXIST("USERNAME_HAS_TAKEN", "중복된 사용자명입니다.", HttpStatus.BAD_REQUEST),
 	EMAIL_ALREADY_EXIST("EMAIL_ALREADY_EXIST", "중복된 이메일 입니다.", HttpStatus.BAD_REQUEST),
+	CANNOT_VERIFY_EMAIL("CANNOT_VERIFY_EMAIL", "이메일을 인증할 수 없습니다", HttpStatus.NOT_FOUND),
 	PASSWORD_IS_WEAK("PASSWORD_IS_WEAK", "비밀번호는 8자 이상이며, 영어 대소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.", HttpStatus.BAD_REQUEST);
 
 	private final String code;

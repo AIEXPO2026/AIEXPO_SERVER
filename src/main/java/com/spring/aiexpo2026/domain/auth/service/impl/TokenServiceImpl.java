@@ -12,7 +12,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.exception.AuthException;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +27,7 @@ public class TokenServiceImpl implements TokenService {
 	private final RedisConfig redisConfig;
 	private final MemberRepository memberRepository;
 
+	// 토큰 발급(로그인)
 	@Override
 	public String generateAccessToken(GenerateTokenRequest request,
 									  HttpServletResponse response) {
@@ -43,6 +43,7 @@ public class TokenServiceImpl implements TokenService {
 		return accessToken;
 	}
 
+	// 토큰 삭제(로그아웃)
 	@Override
 	public void deleteAccessToken(HttpServletRequest request,
 								  HttpServletResponse response) {

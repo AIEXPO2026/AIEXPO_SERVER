@@ -6,6 +6,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface TokenService {
 
+	/**
+	 * 토큰 발급 관련
+	 */
 	String generateAccessToken(GenerateTokenRequest request,
 							   HttpServletResponse response);
 
