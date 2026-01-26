@@ -33,4 +33,8 @@ public class Member {
 	private Role role;
 
 	private LocalDateTime timeStamp;
+
+	public void updatePassword(String password) {
+		this.password = password;
+	}
 }

@@ -3,11 +3,14 @@ package com.spring.aiexpo2026.domain.member.service.impl;
 import com.spring.aiexpo2026.domain.auth.data.request.GenerateTokenRequest;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
+import com.spring.aiexpo2026.domain.member.data.request.ChangePasswordRequest;
 import com.spring.aiexpo2026.domain.member.data.request.SignInRequest;
 import com.spring.aiexpo2026.domain.member.data.request.SignUpRequest;
+import com.spring.aiexpo2026.domain.member.data.response.ChangePasswordResponse;
 import com.spring.aiexpo2026.domain.member.data.response.SignInResponse;
 import com.spring.aiexpo2026.domain.member.data.response.SignUpResponse;
 import com.spring.aiexpo2026.domain.member.entity.Member;
+import com.spring.aiexpo2026.domain.member.exception.MemberStatusCode;
 import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.member.service.MemberService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
@@ -62,5 +65,20 @@ public class MemberServiceImpl implements MemberService {
 		String accessToken = tokenService.generateAccessToken(generateTokenRequest, response);
 
 		return ApiResponse.ok(SignInResponse.success(accessToken));
+	}
+
+	@Override
+	@Transactional
+	public ApiResponse<ChangePasswordResponse> changePassword(ChangePasswordRequest request) {
+		Member member = memberRepository.findByUsername(request.username()).orElseThrow(()
+				-> new ApplicationException(MemberStatusCode.CANNOT_FIND_MEMBER));
+
+		if (!passwordEncoder.matches(request.oldPassword(), member.getPassword())) {
+			throw new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS);
+		}
+
+		member.updatePassword(passwordEncoder.encode(request.newPassword()));
+
+		return ApiResponse.ok(ChangePasswordResponse.success());
 	}
 }

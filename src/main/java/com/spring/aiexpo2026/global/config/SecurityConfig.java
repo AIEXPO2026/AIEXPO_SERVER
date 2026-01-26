@@ -37,10 +37,9 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth ->
 						auth
-								.requestMatchers("/auth/signup", "/auth/signin").permitAll()
-								.requestMatchers("/auth/email/send", "/auth/email/verify").permitAll()
-								.requestMatchers("/").hasRole("USER")
-								.requestMatchers("/").authenticated()
+								.requestMatchers("/auth/signup", "/auth/signin",
+										"/auth/email/send", "/auth/email/verify",
+										"/auth/password").permitAll()
 								.anyRequest().authenticated()
 				)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -52,8 +51,8 @@ public class SecurityConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
 		config.addAllowedOriginPattern("*");
-		config.addAllowedOrigin("*");
 		config.addAllowedHeader("*");
+		config.addAllowedMethod("*");
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);

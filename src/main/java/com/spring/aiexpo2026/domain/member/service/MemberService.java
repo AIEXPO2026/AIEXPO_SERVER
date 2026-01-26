@@ -1,7 +1,9 @@
 package com.spring.aiexpo2026.domain.member.service;
 
+import com.spring.aiexpo2026.domain.member.data.request.ChangePasswordRequest;
 import com.spring.aiexpo2026.domain.member.data.request.SignInRequest;
 import com.spring.aiexpo2026.domain.member.data.request.SignUpRequest;
+import com.spring.aiexpo2026.domain.member.data.response.ChangePasswordResponse;
 import com.spring.aiexpo2026.domain.member.data.response.SignInResponse;
 import com.spring.aiexpo2026.domain.member.data.response.SignUpResponse;
 import com.spring.aiexpo2026.global.data.ApiResponse;
@@ -13,4 +15,6 @@ public interface MemberService {
 
 	ApiResponse<SignInResponse> signIn(SignInRequest request,
 									   HttpServletResponse response);
+
+	ApiResponse<ChangePasswordResponse> changePassword(ChangePasswordRequest request);
 }
