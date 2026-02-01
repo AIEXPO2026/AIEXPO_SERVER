@@ -1,5 +1,6 @@
 package com.spring.aiexpo2026.domain.member.entity;
 
+import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,6 +36,9 @@ public class Member {
 	private Role role;
 
 	private LocalDateTime timeStamp;
+
+	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+	private List<Travel> travels = new ArrayList<>();
 
 	public void updatePassword(String password) {
 		this.password = password;
