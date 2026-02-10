@@ -1,5 +1,6 @@
 package com.spring.aiexpo2026.domain.member.data.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spring.aiexpo2026.domain.member.entity.Member;
 import com.spring.aiexpo2026.domain.member.entity.Role;
 import jakarta.validation.constraints.Email;
@@ -12,13 +13,14 @@ import java.time.LocalDateTime;
 public record SignUpRequest(
 
 		@NotBlank
-		String username,
+		String nickname,
 
 		@NotBlank
+		@JsonProperty("password_hash")
 		@Size(min = 8, max = 32, message = "비밀번호는 8자 이상 32자 이하여야 합니다.")
 		@Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\":{}|<>]{8,}$",
 				message = "비밀번호는 8자 이상이여야 하며, 영문 대소문자, 숫자, 특수문자를 각각 하나 이상 포함해야 합니다.")
-		String password,
+		String passwordHash,
 
 		@Email
 		@NotBlank
@@ -27,11 +29,11 @@ public record SignUpRequest(
 
 	public Member toEntity(String encodedPassword) {
 		return Member.builder()
-				.username(username)
-				.password(encodedPassword)
+				.nickname(nickname)
+				.passwordHash(encodedPassword)
 				.email(email)
 				.role(Role.USER)
-				.timeStamp(LocalDateTime.now())
+				.createdAt(LocalDateTime.now())
 				.build();
 	}
 }

@@ -29,6 +29,12 @@ public class AuthController {
 		return memberService.signUp(request);
 	}
 
+	@PostMapping("/signin")
+	public ApiResponse<SignInResponse> signIn(@RequestBody SignInRequest request,
+											  HttpServletResponse response) {
+		return memberService.signIn(request, response);
+	}
+
 	@PostMapping("/email/send")
 	public void sendEmail(@RequestBody SendEmailRequest request) {
 		emailService.sendEmail(request);
@@ -37,12 +43,6 @@ public class AuthController {
 	@PostMapping("/email/verify")
 	public ApiResponse<VerifyEmailResponse> verifyEmail(@RequestBody VerifyEmailRequest request) {
 		return emailService.verifyEmail(request);
-	}
-
-	@PostMapping("/signin")
-	public ApiResponse<SignInResponse> signIn(@RequestBody SignInRequest request,
-											  HttpServletResponse response) {
-		return memberService.signIn(request, response);
 	}
 
 	@PutMapping("/password")

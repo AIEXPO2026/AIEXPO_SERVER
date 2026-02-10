@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,24 +22,25 @@ public class Travel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	// 방문 여행지 목록
-	@OneToMany(mappedBy = "travel", fetch = FetchType.LAZY)
-	private List<Destination> destinations = new ArrayList<>();
-
-	// 여행 경로
-	private String destination_route;
-
-	// 여행 상태
-	@Enumerated(EnumType.STRING)
-	private TravelStatus travelStatus;
-
-	// 여행 시작 일자
-	private LocalDate startAt;
-
-	// 여행 종료 일자
-	private LocalDate endAt;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
 	private Member member;
+
+	@Column(name = "budget_min")
+	private int budgetMin;
+
+	@Column(name = "budget_max")
+	private int budgetMax;
+
+	@Column(name = "start_date")
+	private LocalDate startDate;
+
+	@Column(name = "end_date")
+	private LocalDate endDate;
+
+	@Column(name = "people_count")
+	private int peopleCount;
+
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
 }

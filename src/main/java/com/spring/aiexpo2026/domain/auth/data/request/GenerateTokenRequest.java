@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 public record GenerateTokenRequest (
 
 		@NotBlank
-		String username,
+		String nickname,
 
 		Role role
 ) {

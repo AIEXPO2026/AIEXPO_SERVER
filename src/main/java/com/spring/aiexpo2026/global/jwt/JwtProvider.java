@@ -42,7 +42,7 @@ public class JwtProvider {
 
 		return Jwts
 				.builder()
-				.subject(request.username())
+				.subject(request.nickname())
 
 				.claim("tokenType", "accessToken")
 				.claim("role", request.role())
@@ -53,7 +53,7 @@ public class JwtProvider {
 				.compact();
 	}
 
-	public String getUsername(String token) {
+	public String getNickname(String token) {
 		Claims claims = Jwts.parser()
 				.verifyWith(key)
 				.build()

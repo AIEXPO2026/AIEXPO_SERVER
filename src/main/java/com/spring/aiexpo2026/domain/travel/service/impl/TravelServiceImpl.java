@@ -4,6 +4,7 @@ import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.member.entity.Member;
 import com.spring.aiexpo2026.domain.member.exception.MemberStatusCode;
 import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import com.spring.aiexpo2026.domain.travel.entity.TravelStatus;
@@ -14,10 +15,12 @@ import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import com.spring.aiexpo2026.global.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,35 +32,54 @@ public class TravelServiceImpl implements TravelService {
 	private final MemberRepository memberRepository;
 
 	@Override
-	public ApiResponse<StartTravelResponse> startTravel(HttpServletRequest servletRequest) {
+	public ApiResponse<StartTravelResponse> startTravel(HttpServletRequest servletRequest,
+														StartTravelRequest startTravelRequest) {
 		Member member = getUsernameFromToken(servletRequest);
+		LocalDate today = LocalDate.now();
 
-		if (travelRepository.existsByMemberIdAndTravelStatus(member.getId(), TravelStatus.TRAVELING)) {
+		if (travelRepository.existsByMemberIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(member.getId(), today, today)) {
 			throw new ApplicationException(TravelStatusCode.TRAVEL_ALREADY_STARTED);
 		}
 
-		Travel travel = Travel.builder()
-				.travelStatus(TravelStatus.TRAVELING)
-				.startAt(LocalDate.now())
-				.member(member)
-				.build();
+		isValidPeriod(startTravelRequest.startDate(), startTravelRequest.endDate());
 
+		Travel travel = Travel.builder()
+				.member(member)
+				.budgetMin(startTravelRequest.budgetMin())
+				.budgetMax(startTravelRequest.budgetMax())
+				.startDate(startTravelRequest.startDate())
+				.endDate(startTravelRequest.endDate())
+				.createdAt(LocalDateTime.now())
+				.build();
 		travelRepository.save(travel);
 
 		return ApiResponse.ok(StartTravelResponse.ok());
 	}
 
-	// todo: 아래에서 토큰이 null이 들어감..
 	public Member getUsernameFromToken(HttpServletRequest servletRequest) {
 		String token = jwtProvider.resolveToken(servletRequest);
 		if (token == null || !jwtProvider.validateToken(token)) {
 			throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
 		}
 
-		String username = jwtProvider.getUsername(token);
+		String nickname = jwtProvider.getNickname(token);
 
-		return memberRepository.findByUsername(username).orElseThrow(()
+		return memberRepository.findByNickname(nickname).orElseThrow(()
 				-> new ApplicationException(MemberStatusCode.CANNOT_FIND_MEMBER));
+	}
+
+	public void isValidPeriod(@NotNull LocalDate startDate,
+							  @NotNull LocalDate endDate) {
+		LocalDate today = LocalDate.now();
+
+		if (endDate.isBefore(startDate)) {
+			throw new ApplicationException(TravelStatusCode.WRONG_END_DATE);
+		}
+
+		if (startDate.isBefore(today)) {
+			throw new ApplicationException(TravelStatusCode.WRONG_START_DATE);
+		}
+
 	}
 }
 

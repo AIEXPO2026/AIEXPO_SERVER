@@ -24,23 +24,25 @@ public class Member {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(unique = true)
-	private String username;
-
-	private String password;
-
 	@Email
 	private String email;
+
+	@Column(name = "password_hash")
+	private String passwordHash;
+
+	@Column(unique = true)
+	private String nickname;
+
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
-	private LocalDateTime timeStamp;
-
 	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
 	private List<Travel> travels = new ArrayList<>();
 
-	public void updatePassword(String password) {
-		this.password = password;
+	public void updatePassword(String passwordHash) {
+		this.passwordHash = passwordHash;
 	}
 }

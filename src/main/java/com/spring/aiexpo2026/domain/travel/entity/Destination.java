@@ -6,26 +6,31 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "destination")
-// 여행지
 public class Destination {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "travel_id", nullable = false)
-	private Travel travel;
-
 	// 여행지 이름
-	private String destination_name;
+	private String name;
 
-	// 여행지 설명
-	private String destination_description;
+	private String city;
+
+	@Column(precision = 10, scale = 7)
+	private BigDecimal latitude;
+
+	@Column(precision = 10, scale = 7)
+	private BigDecimal longitude;
+
+	@Column(precision = 5, scale = 2)
+	private BigDecimal base_score;
 }

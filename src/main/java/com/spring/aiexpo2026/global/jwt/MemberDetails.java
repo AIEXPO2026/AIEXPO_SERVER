@@ -24,12 +24,12 @@ public class MemberDetails implements UserDetails {
 
 	@Override
 	public @Nullable String getPassword() {
-		return member.getPassword();
+		return member.getPasswordHash();
 	}
 
 	@Override
 	public String getUsername() {
-		return member.getUsername();
+		return member.getNickname();
 	}
 
 	@Override

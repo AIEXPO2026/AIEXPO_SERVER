@@ -33,7 +33,7 @@ public class TokenServiceImpl implements TokenService {
 									  HttpServletResponse response) {
 		String accessToken = jwtProvider.generateAccessToken(request);
 
-		redisConfig.redisTemplate().opsForValue().set("accessToken:" + request.username(), accessToken, 2, TimeUnit.HOURS);
+		redisConfig.redisTemplate().opsForValue().set("accessToken:" + request.nickname(), accessToken, 2, TimeUnit.HOURS);
 
 		Cookie accessCookie = new Cookie("accessToken", accessToken);
 		accessCookie.setPath("/");
@@ -49,7 +49,7 @@ public class TokenServiceImpl implements TokenService {
 								  HttpServletResponse response) {
 		ValueOperations<String, String> valueOperations = redisConfig.redisTemplate().opsForValue();
 
-		String username = getMemberFromAccessToken(request).getUsername();
+		String username = getMemberFromAccessToken(request).getNickname();
 
 		String savedAccessToken = valueOperations.get("accessToken:" + username);
 
@@ -77,9 +77,9 @@ public class TokenServiceImpl implements TokenService {
 		if (!jwtProvider.validateToken(accessToken)) {
 			throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
 		}
-		String username = jwtProvider.getUsername(accessToken);
+		String nickname = jwtProvider.getNickname(accessToken);
 
-		return memberRepository.findByUsername(username).orElseThrow(()
+		return memberRepository.findByNickname(nickname).orElseThrow(()
 				-> new ApplicationException(AuthStatusCode.INVALID_TOKEN));
 	}
 }

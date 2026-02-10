@@ -32,14 +32,14 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	@Transactional
 	public ApiResponse<SignUpResponse> signUp(SignUpRequest request) {
-		if (memberRepository.existsByUsername(request.username())) {
+		if (memberRepository.existsByNickname(request.nickname())) {
 			throw new ApplicationException(AuthStatusCode.USERNAME_ALREADY_EXIST);
 		}
 		if (memberRepository.existsByEmail(request.email())) {
 			throw new ApplicationException(AuthStatusCode.EMAIL_ALREADY_EXIST);
 		}
 
-		String encodedPassword = passwordEncoder.encode(request.password());
+		String encodedPassword = passwordEncoder.encode(request.passwordHash());
 		Member member = request.toEntity(encodedPassword);
 
 		memberRepository.save(member);
@@ -50,15 +50,15 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public ApiResponse<SignInResponse> signIn(SignInRequest request,
 											  HttpServletResponse response) {
-		Member member = memberRepository.findByUsername(request.username()).orElseThrow(() ->
+		Member member = memberRepository.findByNickname(request.nickname()).orElseThrow(() ->
 				new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS));
 
-		if (!passwordEncoder.matches(request.password(), member.getPassword())) {
+		if (!passwordEncoder.matches(request.passwordHash(), member.getPasswordHash())) {
 			throw new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS);
 		}
 
 		GenerateTokenRequest generateTokenRequest = new GenerateTokenRequest (
-				member.getUsername(),
+				member.getNickname(),
 				member.getRole()
 		);
 
@@ -70,10 +70,10 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	@Transactional
 	public ApiResponse<ChangePasswordResponse> changePassword(ChangePasswordRequest request) {
-		Member member = memberRepository.findByUsername(request.username()).orElseThrow(()
+		Member member = memberRepository.findByNickname(request.nickname()).orElseThrow(()
 				-> new ApplicationException(MemberStatusCode.CANNOT_FIND_MEMBER));
 
-		if (!passwordEncoder.matches(request.oldPassword(), member.getPassword())) {
+		if (!passwordEncoder.matches(request.oldPassword(), member.getPasswordHash())) {
 			throw new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS);
 		}
 
