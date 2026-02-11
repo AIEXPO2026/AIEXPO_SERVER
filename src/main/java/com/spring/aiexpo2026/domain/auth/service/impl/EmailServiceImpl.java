@@ -1,8 +1,8 @@
 package com.spring.aiexpo2026.domain.auth.service.impl;
 
-import com.spring.aiexpo2026.domain.auth.data.request.SendEmailRequest;
-import com.spring.aiexpo2026.domain.auth.data.request.VerifyEmailRequest;
-import com.spring.aiexpo2026.domain.auth.data.response.VerifyEmailResponse;
+import com.spring.aiexpo2026.domain.auth.dto.request.SendEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.VerifyEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.response.VerifyEmailResponse;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
 import com.spring.aiexpo2026.global.config.RedisConfig;
@@ -126,7 +126,7 @@ public class EmailServiceImpl implements EmailService {
 		if (Objects.equals(code, request.authNum())) {
 			redisConfig.redisTemplate().delete(request.email());
 			redisConfig.redisTemplate().delete(String.valueOf(request.authNum()));
-			return ApiResponse.ok(VerifyEmailResponse.success());
+			return ApiResponse.ok(VerifyEmailResponse.success("이메일이 인증되었습니다."));
 		} else {
 			throw new ApplicationException(AuthStatusCode.CANNOT_VERIFY_EMAIL);
 		}

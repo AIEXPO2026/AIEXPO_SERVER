@@ -1,17 +1,18 @@
 package com.spring.aiexpo2026.domain.auth.controller;
 
-import com.spring.aiexpo2026.domain.auth.data.request.SendEmailRequest;
-import com.spring.aiexpo2026.domain.auth.data.request.VerifyEmailRequest;
-import com.spring.aiexpo2026.domain.auth.data.response.VerifyEmailResponse;
+import com.spring.aiexpo2026.domain.auth.dto.request.SendEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.VerifyEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.response.VerifyEmailResponse;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
-import com.spring.aiexpo2026.domain.member.data.request.ChangePasswordRequest;
-import com.spring.aiexpo2026.domain.member.data.request.SignInRequest;
-import com.spring.aiexpo2026.domain.member.data.request.SignUpRequest;
-import com.spring.aiexpo2026.domain.member.data.response.ChangePasswordResponse;
-import com.spring.aiexpo2026.domain.member.data.response.SignInResponse;
-import com.spring.aiexpo2026.domain.member.data.response.SignUpResponse;
-import com.spring.aiexpo2026.domain.member.service.MemberService;
+import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.SignInRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.SignUpRequest;
+import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
+import com.spring.aiexpo2026.domain.auth.service.MemberService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +47,8 @@ public class AuthController {
 	}
 
 	@PutMapping("/password")
-	public ApiResponse<ChangePasswordResponse> changePassword(@RequestBody ChangePasswordRequest request) {
-		return memberService.changePassword(request);
+	public ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
+															  @RequestBody ChangePasswordRequest request) {
+		return memberService.changePassword(httpServletRequest, request);
 	}
 }

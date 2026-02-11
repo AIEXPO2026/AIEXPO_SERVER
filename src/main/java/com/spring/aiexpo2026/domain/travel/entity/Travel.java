@@ -1,6 +1,6 @@
 package com.spring.aiexpo2026.domain.travel.entity;
 
-import com.spring.aiexpo2026.domain.member.entity.Member;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

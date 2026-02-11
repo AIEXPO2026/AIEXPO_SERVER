@@ -1,10 +1,10 @@
 package com.spring.aiexpo2026.domain.auth.service.impl;
 
-import com.spring.aiexpo2026.domain.auth.data.request.GenerateTokenRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.GenerateTokenRequest;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
-import com.spring.aiexpo2026.domain.member.entity.Member;
-import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.global.config.RedisConfig;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import com.spring.aiexpo2026.global.jwt.JwtProvider;
@@ -67,6 +67,7 @@ public class TokenServiceImpl implements TokenService {
 		}
 	}
 
+	@Override
 	public Member getMemberFromAccessToken(HttpServletRequest request) {
 		String accessToken = Arrays.stream(Optional.ofNullable(request.getCookies()).orElseThrow(()
 						-> new ApplicationException(AuthStatusCode.INVALID_TOKEN)))
@@ -80,6 +81,6 @@ public class TokenServiceImpl implements TokenService {
 		String nickname = jwtProvider.getNickname(accessToken);
 
 		return memberRepository.findByNickname(nickname).orElseThrow(()
-				-> new ApplicationException(AuthStatusCode.INVALID_TOKEN));
+				-> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
 	}
 }

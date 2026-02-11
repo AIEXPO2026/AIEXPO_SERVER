@@ -1,8 +1,8 @@
-package com.spring.aiexpo2026.domain.member.data.request;
+package com.spring.aiexpo2026.domain.auth.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.spring.aiexpo2026.domain.member.entity.Member;
-import com.spring.aiexpo2026.domain.member.entity.Role;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -15,7 +15,7 @@ public record SignUpRequest(
 		@NotBlank
 		String nickname,
 
-		@NotBlank
+		@NotBlank(message = "비밀번호를 입력해주세요")
 		@JsonProperty("password_hash")
 		@Size(min = 8, max = 32, message = "비밀번호는 8자 이상 32자 이하여야 합니다.")
 		@Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\":{}|<>]{8,}$",
@@ -23,7 +23,7 @@ public record SignUpRequest(
 		String passwordHash,
 
 		@Email
-		@NotBlank
+		@NotBlank(message = "이메일을 입력해주세요.")
 		String email
 ) {
 

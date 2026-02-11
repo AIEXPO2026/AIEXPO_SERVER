@@ -1,9 +1,8 @@
 package com.spring.aiexpo2026.domain.travel.service.impl;
 
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
-import com.spring.aiexpo2026.domain.member.entity.Member;
-import com.spring.aiexpo2026.domain.member.exception.MemberStatusCode;
-import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
@@ -64,7 +63,7 @@ public class TravelServiceImpl implements TravelService {
 		String nickname = jwtProvider.getNickname(token);
 
 		return memberRepository.findByNickname(nickname).orElseThrow(()
-				-> new ApplicationException(MemberStatusCode.CANNOT_FIND_MEMBER));
+				-> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
 	}
 
 	public void isValidPeriod(@NotNull LocalDate startDate,

@@ -1,7 +1,7 @@
 package com.spring.aiexpo2026.global.jwt;
 
-import com.spring.aiexpo2026.domain.member.entity.Member;
-import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;

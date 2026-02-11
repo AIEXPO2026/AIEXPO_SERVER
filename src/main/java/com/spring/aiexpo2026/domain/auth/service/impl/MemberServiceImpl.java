@@ -1,20 +1,20 @@
-package com.spring.aiexpo2026.domain.member.service.impl;
+package com.spring.aiexpo2026.domain.auth.service.impl;
 
-import com.spring.aiexpo2026.domain.auth.data.request.GenerateTokenRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.GenerateTokenRequest;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
-import com.spring.aiexpo2026.domain.member.data.request.ChangePasswordRequest;
-import com.spring.aiexpo2026.domain.member.data.request.SignInRequest;
-import com.spring.aiexpo2026.domain.member.data.request.SignUpRequest;
-import com.spring.aiexpo2026.domain.member.data.response.ChangePasswordResponse;
-import com.spring.aiexpo2026.domain.member.data.response.SignInResponse;
-import com.spring.aiexpo2026.domain.member.data.response.SignUpResponse;
-import com.spring.aiexpo2026.domain.member.entity.Member;
-import com.spring.aiexpo2026.domain.member.exception.MemberStatusCode;
-import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
-import com.spring.aiexpo2026.domain.member.service.MemberService;
+import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.SignInRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.SignUpRequest;
+import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.auth.service.MemberService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,7 +44,7 @@ public class MemberServiceImpl implements MemberService {
 
 		memberRepository.save(member);
 
-		return ApiResponse.ok(SignUpResponse.success());
+		return ApiResponse.ok(SignUpResponse.of("가입되었습니다."));
 	}
 
 	@Override
@@ -64,21 +64,21 @@ public class MemberServiceImpl implements MemberService {
 
 		String accessToken = tokenService.generateAccessToken(generateTokenRequest, response);
 
-		return ApiResponse.ok(SignInResponse.success(accessToken));
+		return ApiResponse.ok(SignInResponse.of(accessToken));
 	}
 
 	@Override
 	@Transactional
-	public ApiResponse<ChangePasswordResponse> changePassword(ChangePasswordRequest request) {
-		Member member = memberRepository.findByNickname(request.nickname()).orElseThrow(()
-				-> new ApplicationException(MemberStatusCode.CANNOT_FIND_MEMBER));
+	public ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
+															  ChangePasswordRequest request) {
+		Member member = tokenService.getMemberFromAccessToken(httpServletRequest);
 
-		if (!passwordEncoder.matches(request.oldPassword(), member.getPasswordHash())) {
-			throw new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS);
-		}
+		member.changePassword(
+				request,
+				passwordEncoder
+		);
 
-		member.updatePassword(passwordEncoder.encode(request.newPassword()));
-
-		return ApiResponse.ok(ChangePasswordResponse.success());
+		return ApiResponse.ok(ChangePasswordResponse.of("변경되었습니다."));
 	}
+
 }

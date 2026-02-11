@@ -1,6 +1,6 @@
 package com.spring.aiexpo2026.global.jwt;
 
-import com.spring.aiexpo2026.domain.auth.data.request.GenerateTokenRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.GenerateTokenRequest;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import com.spring.aiexpo2026.global.exception.statuscode.CommonStatusCode;
 import io.jsonwebtoken.Claims;
