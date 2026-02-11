@@ -7,7 +7,6 @@ import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
-import com.spring.aiexpo2026.domain.travel.entity.TravelStatus;
 import com.spring.aiexpo2026.domain.travel.exception.TravelStatusCode;
 import com.spring.aiexpo2026.domain.travel.repository.TravelRepository;
 import com.spring.aiexpo2026.domain.travel.service.TravelService;
@@ -88,3 +87,4 @@ public class TravelServiceImpl implements TravelService {
 // 걸어갈 방향이 그저 달라졌을 뿐이야 나아갈 맘이 중요하니까 자~
 // 윷을 던져보자
 // 모두 같이 놀자
+// 캄보디아 가보자구!!
