@@ -13,8 +13,8 @@ public interface TokenService {
 	String generateAccessToken(GenerateTokenRequest request,
 							   HttpServletResponse response);
 
+	Member getMemberFromAccessToken(HttpServletRequest request);
+
 	void deleteAccessToken(HttpServletRequest request,
 						   HttpServletResponse response);
-
-	Member getMemberFromAccessToken(HttpServletRequest request);
 }

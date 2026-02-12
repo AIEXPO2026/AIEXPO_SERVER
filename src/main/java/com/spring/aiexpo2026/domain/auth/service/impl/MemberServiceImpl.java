@@ -1,6 +1,7 @@
 package com.spring.aiexpo2026.domain.auth.service.impl;
 
 import com.spring.aiexpo2026.domain.auth.dto.request.GenerateTokenRequest;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
 import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
@@ -68,10 +69,19 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
+	public ApiResponse<SignOutResponse> signOut(HttpServletRequest httpServletRequest,
+												HttpServletResponse httpServletResponse) {
+		getMemberFromToken(httpServletRequest);
+		tokenService.deleteAccessToken(httpServletRequest, httpServletResponse);
+
+		return ApiResponse.ok(SignOutResponse.of("로그아웃 되었습니다."));
+	}
+
+	@Override
 	@Transactional
 	public ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
 															  ChangePasswordRequest request) {
-		Member member = tokenService.getMemberFromAccessToken(httpServletRequest);
+		Member member = getMemberFromToken(httpServletRequest);
 
 		member.changePassword(
 				request,
@@ -81,4 +91,7 @@ public class MemberServiceImpl implements MemberService {
 		return ApiResponse.ok(ChangePasswordResponse.of("변경되었습니다."));
 	}
 
+	public Member getMemberFromToken(HttpServletRequest httpServletRequest) {
+		return tokenService.getMemberFromAccessToken(httpServletRequest);
+	}
 }

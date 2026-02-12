@@ -2,14 +2,15 @@ package com.spring.aiexpo2026.domain.auth.controller;
 
 import com.spring.aiexpo2026.domain.auth.dto.request.SendEmailRequest;
 import com.spring.aiexpo2026.domain.auth.dto.request.VerifyEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
 import com.spring.aiexpo2026.domain.auth.dto.response.VerifyEmailResponse;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
 import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
 import com.spring.aiexpo2026.domain.auth.dto.request.SignInRequest;
 import com.spring.aiexpo2026.domain.auth.dto.request.SignUpRequest;
-import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
-import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
-import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
 import com.spring.aiexpo2026.domain.auth.service.MemberService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +35,12 @@ public class AuthController {
 	public ApiResponse<SignInResponse> signIn(@RequestBody SignInRequest request,
 											  HttpServletResponse response) {
 		return memberService.signIn(request, response);
+	}
+
+	@PostMapping("/signout")
+	public ApiResponse<SignOutResponse> signOut(HttpServletRequest httpServletRequest,
+												HttpServletResponse httpServletResponse) {
+		return memberService.signOut(httpServletRequest, httpServletResponse);
 	}
 
 	@PostMapping("/email/send")

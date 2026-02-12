@@ -12,6 +12,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class TokenServiceImpl implements TokenService {
 
 	private final JwtProvider jwtProvider;
 	private final RedisConfig redisConfig;
+//	private final RedisTemplate<String, String> redisTemplate;
 	private final MemberRepository memberRepository;
 
 	// 토큰 발급(로그인)

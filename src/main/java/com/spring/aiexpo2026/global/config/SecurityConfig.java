@@ -40,6 +40,7 @@ public class SecurityConfig {
 								.requestMatchers("/auth/signup", "/auth/signin",
 										"/auth/email/send", "/auth/email/verify",
 										"/auth/password",
+										"/auth/signout",
 										"/travel/start").permitAll()
 								.anyRequest().authenticated()
 				)
