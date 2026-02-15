@@ -43,6 +43,7 @@ public class Member {
 	@Enumerated(EnumType.STRING)
 	private Role role = Role.USER;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
 	private List<Travel> travels = new ArrayList<>();
 

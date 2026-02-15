@@ -5,7 +5,6 @@ import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
 import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
-import com.spring.aiexpo2026.global.config.RedisConfig;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import com.spring.aiexpo2026.global.jwt.JwtProvider;
 import jakarta.servlet.http.Cookie;
@@ -25,8 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class TokenServiceImpl implements TokenService {
 
 	private final JwtProvider jwtProvider;
-	private final RedisConfig redisConfig;
-//	private final RedisTemplate<String, String> redisTemplate;
+	private final RedisTemplate<String, String> redisTemplate;
 	private final MemberRepository memberRepository;
 
 	// 토큰 발급(로그인)
@@ -35,12 +33,12 @@ public class TokenServiceImpl implements TokenService {
 									  HttpServletResponse response) {
 		String accessToken = jwtProvider.generateAccessToken(request);
 
-		redisConfig.redisTemplate().opsForValue().set("accessToken:" + request.nickname(), accessToken, 2, TimeUnit.HOURS);
+		redisTemplate.opsForValue().set("accessToken:" + request.nickname(), accessToken, 2, TimeUnit.HOURS);
 
 		Cookie accessCookie = new Cookie("accessToken", accessToken);
 		accessCookie.setPath("/");
 		accessCookie.setHttpOnly(true);
-		accessCookie.setMaxAge(60 * 60); // 1시간
+		accessCookie.setMaxAge(60 * 60 * 2); // 2시간
 		response.addCookie(accessCookie);
 		return accessToken;
 	}
@@ -49,7 +47,7 @@ public class TokenServiceImpl implements TokenService {
 	@Override
 	public void deleteAccessToken(HttpServletRequest request,
 								  HttpServletResponse response) {
-		ValueOperations<String, String> valueOperations = redisConfig.redisTemplate().opsForValue();
+		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 
 		String username = getMemberFromAccessToken(request).getNickname();
 
@@ -65,7 +63,7 @@ public class TokenServiceImpl implements TokenService {
 			accessCookie.setMaxAge(0); // 즉시 만료
 			response.addCookie(accessCookie);
 
-			redisConfig.redisTemplate().delete("accessToken:" + username);
+			redisTemplate.delete("accessToken:" + username);
 		}
 	}
 

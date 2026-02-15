@@ -15,6 +15,7 @@ import com.spring.aiexpo2026.domain.auth.service.MemberService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +28,12 @@ public class AuthController {
 	private final EmailService emailService;
 
 	@PostMapping("/signup")
-	public ApiResponse<SignUpResponse> signUp(@RequestBody SignUpRequest request) {
+	public ApiResponse<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
 		return memberService.signUp(request);
 	}
 
 	@PostMapping("/signin")
-	public ApiResponse<SignInResponse> signIn(@RequestBody SignInRequest request,
+	public ApiResponse<SignInResponse> signIn(@Valid @RequestBody SignInRequest request,
 											  HttpServletResponse response) {
 		return memberService.signIn(request, response);
 	}
@@ -49,13 +50,13 @@ public class AuthController {
 	}
 
 	@PostMapping("/email/verify")
-	public ApiResponse<VerifyEmailResponse> verifyEmail(@RequestBody VerifyEmailRequest request) {
+	public ApiResponse<VerifyEmailResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
 		return emailService.verifyEmail(request);
 	}
 
 	@PutMapping("/password")
 	public ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
-															  @RequestBody ChangePasswordRequest request) {
+															  @Valid @RequestBody ChangePasswordRequest request) {
 		return memberService.changePassword(httpServletRequest, request);
 	}
 }

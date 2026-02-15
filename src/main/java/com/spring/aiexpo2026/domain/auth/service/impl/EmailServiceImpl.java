@@ -10,6 +10,7 @@ import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class EmailServiceImpl implements EmailService {
 
 	private final JavaMailSender mailSender;
-	private final RedisConfig redisConfig;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Value("${spring.mail.username}")
 	private String serviceName;
@@ -39,7 +40,7 @@ public class EmailServiceImpl implements EmailService {
 	public void sendEmail(SendEmailRequest request) {
 		int authNum = authNum();
 
-		String title = "اللّٰهُ أَكْبَر\n";
+		String title = "서비스 이름";
 		String message = """
         <!DOCTYPE html>
         <html lang="ko">
@@ -105,7 +106,7 @@ public class EmailServiceImpl implements EmailService {
 		MimeMessage sendMessage = mailSender.createMimeMessage();
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(sendMessage, true, "utf-8");
-			helper.setFrom(serviceName, "اللّٰهُ أَكْبَر");
+			helper.setFrom(serviceName, "서비스 이름");
 			helper.setTo(request.email());
 			helper.setSubject(title);
 			helper.setText(content, true);
@@ -113,19 +114,18 @@ public class EmailServiceImpl implements EmailService {
 		} catch (Exception e) {
 			throw new ApplicationException(AuthStatusCode.CANNOT_VERIFY_EMAIL);
 		}
-		// Redis에 5분간 저장
-		ValueOperations<String, String> valueOperations = redisConfig.redisTemplate().opsForValue();
+		// Redis에 3분간 저장
+		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 		valueOperations.set(request.email(), Integer.toString(authNum), 3, TimeUnit.MINUTES);
 	}
 
 	@Override
 	public ApiResponse<VerifyEmailResponse> verifyEmail(VerifyEmailRequest request) {
-		ValueOperations<String, String> valueOperations = redisConfig.redisTemplate().opsForValue();
+		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 		String code = valueOperations.get(request.email());
 
 		if (Objects.equals(code, request.authNum())) {
-			redisConfig.redisTemplate().delete(request.email());
-			redisConfig.redisTemplate().delete(String.valueOf(request.authNum()));
+			redisTemplate.delete(request.email());
 			return ApiResponse.ok(VerifyEmailResponse.success("이메일이 인증되었습니다."));
 		} else {
 			throw new ApplicationException(AuthStatusCode.CANNOT_VERIFY_EMAIL);
