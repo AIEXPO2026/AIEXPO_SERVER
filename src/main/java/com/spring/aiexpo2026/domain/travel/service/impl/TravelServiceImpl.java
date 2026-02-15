@@ -44,6 +44,7 @@ public class TravelServiceImpl implements TravelService {
 				.member(member)
 				.budgetMin(startTravelRequest.budgetMin())
 				.budgetMax(startTravelRequest.budgetMax())
+				.peopleCount(startTravelRequest.peopleCount())
 				.startDate(startTravelRequest.startDate())
 				.endDate(startTravelRequest.endDate())
 				.createdAt(LocalDateTime.now())
