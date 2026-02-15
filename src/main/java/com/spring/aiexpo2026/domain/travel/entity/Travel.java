@@ -45,4 +45,12 @@ public class Travel {
 
 	@Enumerated(EnumType.STRING)
 	private TravelStatus travelStatus;
+
+	public void updateEndDate(LocalDate endDate) {
+		this.endDate = endDate;
+	}
+
+	public void updateTravelStatus(TravelStatus travelStatus) {
+		this.travelStatus = travelStatus;
+	}
 }

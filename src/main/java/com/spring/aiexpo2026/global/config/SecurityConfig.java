@@ -41,7 +41,8 @@ public class SecurityConfig {
 										"/auth/email/send", "/auth/email/verify",
 										"/auth/password",
 										"/auth/signout",
-										"/travel/start").permitAll()
+										"/travel/start",
+										"/travel/finish").permitAll()
 								.anyRequest().authenticated()
 				)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

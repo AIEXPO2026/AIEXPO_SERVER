@@ -1,11 +1,14 @@
 package com.spring.aiexpo2026.domain.travel.repository;
 
+import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
+import com.spring.aiexpo2026.domain.travel.entity.TravelStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface TravelRepository extends JpaRepository<Travel, Long> {
@@ -28,4 +31,9 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 			@Param("endDate")
 			LocalDate endDate
 	);
+
+	Optional<Travel> findByTravelStatusAndEndDateBefore(TravelStatus travelStatus,
+													LocalDate today);
+
+	Optional<Travel> findByMemberAndTravelStatus(Member member, TravelStatus travelStatus);
 }

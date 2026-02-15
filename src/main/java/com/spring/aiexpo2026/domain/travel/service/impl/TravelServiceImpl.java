@@ -4,6 +4,7 @@ import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
+import com.spring.aiexpo2026.domain.travel.data.response.FinishTravelResponse;
 import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import com.spring.aiexpo2026.domain.travel.entity.TravelStatus;
@@ -46,6 +47,7 @@ public class TravelServiceImpl implements TravelService {
 				.budgetMax(startTravelRequest.budgetMax())
 				.startDate(startTravelRequest.startDate())
 				.endDate(startTravelRequest.endDate())
+				.peopleCount(startTravelRequest.peopleCount())
 				.createdAt(LocalDateTime.now())
 				.travelStatus(status)
 				.build();
@@ -54,6 +56,24 @@ public class TravelServiceImpl implements TravelService {
 		return ApiResponse.ok(StartTravelResponse.of(
 				status == (TravelStatus.TRAVEL_PLANNED) ? "여행이 계획되었습니다." : "여행이 시작되었습니다."
 		));
+	}
+
+	@Override
+	@Transactional
+	public ApiResponse<FinishTravelResponse> finishTravel(HttpServletRequest servletRequest) {
+		Member member = getUsernameFromToken(servletRequest);
+
+		LocalDate today = LocalDate.now();
+
+		Travel travel = travelRepository.findByMemberAndTravelStatus(member, TravelStatus.TRAVELING)
+				.orElseThrow(() ->
+					new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL_TO_FINISH)
+				);
+
+		travel.updateEndDate(today);
+		travel.updateTravelStatus(TravelStatus.TRAVEL_FINISHED);
+
+		return ApiResponse.ok(FinishTravelResponse.of("여행이 종료되었습니다."));
 	}
 
 	public Member getUsernameFromToken(HttpServletRequest servletRequest) {
