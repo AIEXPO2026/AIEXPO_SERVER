@@ -14,9 +14,9 @@ import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import com.spring.aiexpo2026.global.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,6 +31,7 @@ public class TravelServiceImpl implements TravelService {
 	private final MemberRepository memberRepository;
 
 	@Override
+	@Transactional
 	public ApiResponse<StartTravelResponse> startTravel(HttpServletRequest servletRequest,
 														StartTravelRequest startTravelRequest) {
 		Member member = getUsernameFromToken(servletRequest);
