@@ -6,6 +6,7 @@ import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
+import com.spring.aiexpo2026.domain.travel.entity.TravelStatus;
 import com.spring.aiexpo2026.domain.travel.exception.TravelStatusCode;
 import com.spring.aiexpo2026.domain.travel.repository.TravelRepository;
 import com.spring.aiexpo2026.domain.travel.service.TravelService;
@@ -33,13 +34,10 @@ public class TravelServiceImpl implements TravelService {
 	public ApiResponse<StartTravelResponse> startTravel(HttpServletRequest servletRequest,
 														StartTravelRequest startTravelRequest) {
 		Member member = getUsernameFromToken(servletRequest);
-		LocalDate today = LocalDate.now();
 
-		if (travelRepository.existsByMemberIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(member.getId(), today, today)) {
-			throw new ApplicationException(TravelStatusCode.TRAVEL_ALREADY_STARTED);
-		}
-
-		isValidPeriod(startTravelRequest.startDate(), startTravelRequest.endDate());
+		TravelStatus status = validDateAndSetTravelStatus(member.getId(),
+				startTravelRequest.startDate(),
+				startTravelRequest.endDate());
 
 		Travel travel = Travel.builder()
 				.member(member)
@@ -48,10 +46,13 @@ public class TravelServiceImpl implements TravelService {
 				.startDate(startTravelRequest.startDate())
 				.endDate(startTravelRequest.endDate())
 				.createdAt(LocalDateTime.now())
+				.travelStatus(status)
 				.build();
 		travelRepository.save(travel);
 
-		return ApiResponse.ok(StartTravelResponse.ok());
+		return ApiResponse.ok(StartTravelResponse.of(
+				status == (TravelStatus.TRAVEL_PLANNED) ? "여행이 계획되었습니다." : "여행이 시작되었습니다."
+		));
 	}
 
 	public Member getUsernameFromToken(HttpServletRequest servletRequest) {
@@ -66,24 +67,32 @@ public class TravelServiceImpl implements TravelService {
 				-> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
 	}
 
-	public void isValidPeriod(@NotNull LocalDate startDate,
-							  @NotNull LocalDate endDate) {
+	private TravelStatus validDateAndSetTravelStatus(Long memberId,
+													 LocalDate startDate,
+													 LocalDate endDate) {
+
 		LocalDate today = LocalDate.now();
 
 		if (endDate.isBefore(startDate)) {
 			throw new ApplicationException(TravelStatusCode.WRONG_END_DATE);
 		}
 
+		travelRepository.findOverlappingTravel(
+				memberId,
+				startDate,
+				endDate
+				).ifPresent(travel -> {
+					throw new ApplicationException(
+							travel.getTravelStatus() == TravelStatus.TRAVELING
+							? TravelStatusCode.TRAVEL_ALREADY_STARTED
+							: TravelStatusCode.TRAVEL_ALREADY_PLANNED
+					);
+		});
+
 		if (startDate.isBefore(today)) {
 			throw new ApplicationException(TravelStatusCode.WRONG_START_DATE);
 		}
 
+		return startDate.isEqual(today) ? TravelStatus.TRAVELING : TravelStatus.TRAVEL_PLANNED;
 	}
 }
-
-// 도망쳐도 괜찮아 가끔은
-// 개운해지는 길일지도 몰라
-// 걸어갈 방향이 그저 달라졌을 뿐이야 나아갈 맘이 중요하니까 자~
-// 윷을 던져보자
-// 모두 같이 놀자
-// 캄보디아 가보자구!!

@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "travel")
 public class Travel {
 
 	@Id
@@ -43,4 +42,7 @@ public class Travel {
 
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
+
+	@Enumerated(EnumType.STRING)
+	private TravelStatus travelStatus;
 }
