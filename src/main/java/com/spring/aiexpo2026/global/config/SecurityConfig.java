@@ -42,7 +42,8 @@ public class SecurityConfig {
 										"/auth/password",
 										"/auth/signout",
 										"/travel/start",
-										"/travel/finish").permitAll()
+										"/travel/finish",
+										"/travel/edit/**").permitAll()
 								.anyRequest().authenticated()
 				)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -62,3 +63,4 @@ public class SecurityConfig {
 		return new CorsFilter(source);
 	}
 }
+

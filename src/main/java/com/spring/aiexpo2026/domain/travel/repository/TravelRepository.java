@@ -32,8 +32,7 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 			LocalDate endDate
 	);
 
-	Optional<Travel> findByTravelStatusAndEndDateBefore(TravelStatus travelStatus,
-													LocalDate today);
+	Optional<Travel> findById(Long id);
 
 	Optional<Travel> findByMemberAndTravelStatus(Member member, TravelStatus travelStatus);
 }

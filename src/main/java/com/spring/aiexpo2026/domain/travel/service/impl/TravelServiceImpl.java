@@ -3,7 +3,9 @@ package com.spring.aiexpo2026.domain.travel.service.impl;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.travel.data.request.EditTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
+import com.spring.aiexpo2026.domain.travel.data.response.EditTravelResponse;
 import com.spring.aiexpo2026.domain.travel.data.response.FinishTravelResponse;
 import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
@@ -18,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -74,6 +77,28 @@ public class TravelServiceImpl implements TravelService {
 		travel.updateTravelStatus(TravelStatus.TRAVEL_FINISHED);
 
 		return ApiResponse.ok(FinishTravelResponse.of("여행이 종료되었습니다."));
+	}
+
+	@Override
+	@Transactional
+	public ApiResponse<EditTravelResponse> editTravel(HttpServletRequest servletRequest,
+													  Long id,
+													  EditTravelRequest editTravelRequest) {
+		getUsernameFromToken(servletRequest);
+
+		Travel travel = travelRepository.findById(id).orElseThrow(()
+				-> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
+
+		if (travel.getTravelStatus() == TravelStatus.TRAVEL_FINISHED) {
+			travel.updatePeopleCount(editTravelRequest.peopleCount());
+			travel.updateMood(editTravelRequest.mood());
+			travel.updateAvgWeather(editTravelRequest.avgWeather());
+			travel.updatePublicTravel(editTravelRequest.publicTravel());
+
+			return ApiResponse.ok(EditTravelResponse.of("여행을 수정했습니다."));
+		}
+
+		throw new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL);
 	}
 
 	public Member getUsernameFromToken(HttpServletRequest servletRequest) {
