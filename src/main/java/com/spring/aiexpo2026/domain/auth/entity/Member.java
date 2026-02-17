@@ -41,7 +41,7 @@ public class Member {
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
-	private Role role = Role.USER;
+	private Role role = Role.USER_NOT_VERIFIED;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
@@ -54,5 +54,9 @@ public class Member {
 		}
 
 		this.passwordHash = passwordEncoder.encode(request.newPassword());
+	}
+
+	public void updateRole(Role role) {
+		this.role = role;
 	}
 }

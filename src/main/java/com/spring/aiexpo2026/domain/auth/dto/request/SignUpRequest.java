@@ -32,7 +32,6 @@ public record SignUpRequest(
 				.nickname(nickname)
 				.passwordHash(encodedPassword)
 				.email(email)
-				.role(Role.USER)
 				.createdAt(LocalDateTime.now())
 				.build();
 	}

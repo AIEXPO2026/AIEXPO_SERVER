@@ -3,7 +3,10 @@ package com.spring.aiexpo2026.domain.auth.service.impl;
 import com.spring.aiexpo2026.domain.auth.dto.request.SendEmailRequest;
 import com.spring.aiexpo2026.domain.auth.dto.request.VerifyEmailRequest;
 import com.spring.aiexpo2026.domain.auth.dto.response.VerifyEmailResponse;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.entity.Role;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
 import com.spring.aiexpo2026.global.config.RedisConfig;
 import com.spring.aiexpo2026.global.data.ApiResponse;
@@ -16,6 +19,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.Random;
@@ -27,6 +31,7 @@ public class EmailServiceImpl implements EmailService {
 
 	private final JavaMailSender mailSender;
 	private final RedisTemplate<String, String> redisTemplate;
+	private final MemberRepository memberRepository;
 
 	@Value("${spring.mail.username}")
 	private String serviceName;
@@ -120,11 +125,16 @@ public class EmailServiceImpl implements EmailService {
 	}
 
 	@Override
+	@Transactional
 	public ApiResponse<VerifyEmailResponse> verifyEmail(VerifyEmailRequest request) {
 		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 		String code = valueOperations.get(request.email());
 
+		Member member = memberRepository.findByEmail(request.email()).orElseThrow(()
+				-> new ApplicationException(AuthStatusCode.CANNOT_FIND_EMAIL));
+
 		if (Objects.equals(code, request.authNum())) {
+			member.updateRole(Role.USER);
 			redisTemplate.delete(request.email());
 			return ApiResponse.ok(VerifyEmailResponse.success("이메일이 인증되었습니다."));
 		} else {

@@ -2,6 +2,7 @@ package com.spring.aiexpo2026.domain.auth.service.impl;
 
 import com.spring.aiexpo2026.domain.auth.dto.request.GenerateTokenRequest;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
+import com.spring.aiexpo2026.domain.auth.entity.Role;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
 import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
@@ -56,6 +57,10 @@ public class MemberServiceImpl implements MemberService {
 
 		if (!passwordEncoder.matches(request.passwordHash(), member.getPasswordHash())) {
 			throw new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS);
+		}
+
+		if (member.getRole() == Role.USER_NOT_VERIFIED) {
+			throw new ApplicationException(AuthStatusCode.USER_NOT_VERIFY);
 		}
 
 		GenerateTokenRequest generateTokenRequest = new GenerateTokenRequest (

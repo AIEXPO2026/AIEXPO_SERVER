@@ -37,13 +37,17 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth ->
 						auth
-								.requestMatchers("/auth/signup", "/auth/signin",
-										"/auth/email/send", "/auth/email/verify",
+								.requestMatchers(
+										"/auth/signup", "/auth/signin",
+										"/auth/email/send", "/auth/email/verify"
+								).permitAll()
+
+								.requestMatchers(
 										"/auth/password",
 										"/auth/signout",
-										"/travel/start",
-										"/travel/finish",
-										"/travel/edit/**").permitAll()
+										"/travel/start", "/travel/finish",
+										"/travel/edit/**"
+										).hasAnyAuthority("USER", "ADMIN")
 								.anyRequest().authenticated()
 				)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
