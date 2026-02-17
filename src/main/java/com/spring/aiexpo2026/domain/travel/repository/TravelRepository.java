@@ -19,9 +19,10 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 	WHERE t.member.id = :memberId
 	AND t.startDate <= :endDate
 	AND t.endDate >= :startDate
+	AND t.travelStatus != com.spring.aiexpo2026.domain.travel.entity.TravelStatus.TRAVEL_FINISHED
 	ORDER BY t.id
 	""")
-	Optional<Travel> findOverlappingTravel(
+	Optional<Travel> findOverlappingActiveTravel(
 			@Param("memberId")
 			Long memberId,
 

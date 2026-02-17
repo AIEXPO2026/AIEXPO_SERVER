@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -123,7 +122,7 @@ public class TravelServiceImpl implements TravelService {
 			throw new ApplicationException(TravelStatusCode.WRONG_END_DATE);
 		}
 
-		travelRepository.findOverlappingTravel(
+		travelRepository.findOverlappingActiveTravel(
 				memberId,
 				startDate,
 				endDate
