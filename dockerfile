@@ -15,7 +15,8 @@ COPY src src
 RUN ./gradlew build -x test --no-daemon
 
 # Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+# Use a multi-arch runtime image so default `docker build` works on ARM and AMD64.
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
