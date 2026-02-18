@@ -69,11 +69,14 @@ public class TokenServiceImpl implements TokenService {
 
 	@Override
 	public Member getMemberFromAccessToken(HttpServletRequest request) {
-		String accessToken = Arrays.stream(Optional.ofNullable(request.getCookies()).orElseThrow(()
-						-> new ApplicationException(AuthStatusCode.INVALID_TOKEN)))
-				.filter(cookie -> "accessToken".equals(cookie.getName()))
-				.map(Cookie::getValue).findFirst().orElseThrow(()
-						-> new ApplicationException(AuthStatusCode.INVALID_TOKEN));
+		// Authorization 헤더 우선, 없으면 쿠키에서 조회
+		String accessToken = jwtProvider.resolveToken(request);
+		if (accessToken == null) {
+			accessToken = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+					.filter(cookie -> "accessToken".equals(cookie.getName()))
+					.map(Cookie::getValue).findFirst().orElseThrow(()
+							-> new ApplicationException(AuthStatusCode.INVALID_TOKEN));
+		}
 
 		if (!jwtProvider.validateToken(accessToken)) {
 			throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);

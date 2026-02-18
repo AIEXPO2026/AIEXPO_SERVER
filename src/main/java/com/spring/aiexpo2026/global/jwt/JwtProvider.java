@@ -8,8 +8,8 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -21,17 +21,10 @@ public class JwtProvider {
 	private final SecretKey key;
 	private final long tokenValidity = 7200000; // 2시간
 
-	public JwtProvider() {
-		Dotenv dotenv = Dotenv.configure()
-				.directory("./")
-				.load();
-
-		String secret = dotenv.get("JWT_SECRET");
-
+	public JwtProvider(@Value("${spring.jwt.secret}") String secret) {
 		if (secret == null || secret.isEmpty()) {
 			throw new ApplicationException(CommonStatusCode.UNKNOWN_JWT_SECRET);
 		}
-
 		this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 	}
 
