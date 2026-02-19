@@ -20,7 +20,7 @@ public record ApiResponse<T>(
 		return new ApiResponse<>(status.value(), null, error);
 	}
 
-	public static <T> ApiResponse<T> error(StatusCode status) {
-		return new ApiResponse<>(status.getHttpStatus().value(), null, ErrorResponse.of(status.getCode(), status.getMessage()));
+	public static <T> ApiResponse<T> create(T data) {
+		return new ApiResponse<>(HttpStatus.CREATED.value(), data, null);
 	}
 }
