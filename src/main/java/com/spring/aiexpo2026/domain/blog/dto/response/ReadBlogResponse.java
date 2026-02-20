@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record ReadBlogResponse(
+        Long id,
         String title,
         String author,
         LocalDate date,
@@ -15,6 +16,7 @@ public record ReadBlogResponse(
 ) {
     public static ReadBlogResponse of(Blog blog) {
         return new ReadBlogResponse(
+                blog.getId(),
                 blog.getTitle(),
                 blog.getMember().getUsername(),
                 blog.getDate(),
