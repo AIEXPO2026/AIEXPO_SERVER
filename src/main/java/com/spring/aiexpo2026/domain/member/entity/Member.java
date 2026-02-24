@@ -3,6 +3,7 @@ package com.spring.aiexpo2026.domain.member.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -31,6 +32,9 @@ public class Member {
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
+
+	@Builder.Default
+	private int credit = 0;
 
 	private LocalDateTime timeStamp;
 

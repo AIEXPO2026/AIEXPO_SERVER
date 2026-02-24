@@ -11,8 +11,6 @@ import java.util.Optional;
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     List<Bookmark> findByMember_Id(Long memberId);
 
-    Optional<Bookmark> findByMember_IdAndDestination_Id(Long memberId, Long destinationId);
-
     boolean existsByMember_IdAndDestination_Id(Long memberId, Long destinationId);
 
     void deleteByMember_IdAndDestination_Id(Long memberId, Long destinationId);
