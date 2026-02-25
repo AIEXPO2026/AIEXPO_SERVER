@@ -1,7 +1,7 @@
 package com.spring.aiexpo2026.domain.blog.entity;
 
 import com.spring.aiexpo2026.domain.blog.dto.request.UpdateBlogRequest;
-import com.spring.aiexpo2026.domain.member.entity.Member;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -42,6 +42,7 @@ public class Blog {
         this.title = request.title();
         this.content = request.content();
         this.country = request.country();
+        this.date = request.date();
     }
 
     public void plusView() {
