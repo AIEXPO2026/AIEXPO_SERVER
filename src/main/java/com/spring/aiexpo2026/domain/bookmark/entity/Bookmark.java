@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "bookmark")
 public class Bookmark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
