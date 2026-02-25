@@ -1,21 +1,20 @@
 package com.spring.aiexpo2026.domain.auth.service.impl;
 
-import com.spring.aiexpo2026.domain.auth.data.request.GenerateTokenRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.GenerateTokenRequest;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
-import com.spring.aiexpo2026.domain.member.entity.Member;
-import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
-import com.spring.aiexpo2026.global.config.RedisConfig;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import com.spring.aiexpo2026.global.jwt.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class TokenServiceImpl implements TokenService {
 
 	private final JwtProvider jwtProvider;
-	private final RedisConfig redisConfig;
+	private final RedisTemplate<String, String> redisTemplate;
 	private final MemberRepository memberRepository;
 
 	// 토큰 발급(로그인)
@@ -33,12 +32,12 @@ public class TokenServiceImpl implements TokenService {
 									  HttpServletResponse response) {
 		String accessToken = jwtProvider.generateAccessToken(request);
 
-		redisConfig.redisTemplate().opsForValue().set("accessToken:" + request.username(), accessToken, 2, TimeUnit.HOURS);
+		redisTemplate.opsForValue().set("accessToken:" + request.nickname(), accessToken, 2, TimeUnit.HOURS);
 
 		Cookie accessCookie = new Cookie("accessToken", accessToken);
 		accessCookie.setPath("/");
 		accessCookie.setHttpOnly(true);
-		accessCookie.setMaxAge(60 * 60); // 1시간
+		accessCookie.setMaxAge(60 * 60 * 2); // 2시간
 		response.addCookie(accessCookie);
 		return accessToken;
 	}
@@ -47,9 +46,9 @@ public class TokenServiceImpl implements TokenService {
 	@Override
 	public void deleteAccessToken(HttpServletRequest request,
 								  HttpServletResponse response) {
-		ValueOperations<String, String> valueOperations = redisConfig.redisTemplate().opsForValue();
+		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 
-		String username = getMemberFromAccessToken(request).getUsername();
+		String username = getMemberFromAccessToken(request).getNickname();
 
 		String savedAccessToken = valueOperations.get("accessToken:" + username);
 
@@ -63,23 +62,21 @@ public class TokenServiceImpl implements TokenService {
 			accessCookie.setMaxAge(0); // 즉시 만료
 			response.addCookie(accessCookie);
 
-			redisConfig.redisTemplate().delete("accessToken:" + username);
+			redisTemplate.delete("accessToken:" + username);
 		}
 	}
 
+	@Override
 	public Member getMemberFromAccessToken(HttpServletRequest request) {
-		String accessToken = Arrays.stream(Optional.ofNullable(request.getCookies()).orElseThrow(()
-						-> new ApplicationException(AuthStatusCode.INVALID_TOKEN)))
-				.filter(cookie -> "accessToken".equals(cookie.getName()))
-				.map(Cookie::getValue).findFirst().orElseThrow(()
-						-> new ApplicationException(AuthStatusCode.INVALID_TOKEN));
+		String accessToken = Optional.ofNullable(jwtProvider.resolveToken(request))
+				.orElseThrow(() -> new ApplicationException(AuthStatusCode.INVALID_TOKEN));
 
 		if (!jwtProvider.validateToken(accessToken)) {
 			throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
 		}
-		String username = jwtProvider.getUsername(accessToken);
+		String nickname = jwtProvider.getNickname(accessToken);
 
-		return memberRepository.findByUsername(username).orElseThrow(()
-				-> new ApplicationException(AuthStatusCode.INVALID_TOKEN));
+		return memberRepository.findByNickname(nickname).orElseThrow(()
+				-> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
 	}
 }

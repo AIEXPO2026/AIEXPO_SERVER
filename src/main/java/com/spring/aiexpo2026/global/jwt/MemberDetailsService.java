@@ -1,7 +1,7 @@
 package com.spring.aiexpo2026.global.jwt;
 
-import com.spring.aiexpo2026.domain.member.entity.Member;
-import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,9 +17,9 @@ public class MemberDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(@NonNull
-											  String username) throws UsernameNotFoundException {
+											  String nickname) throws UsernameNotFoundException {
 
-		Member member = memberRepository.findByUsername(username).orElseThrow(()
+		Member member = memberRepository.findByNickname(nickname).orElseThrow(()
 				-> new UsernameNotFoundException("유저정보를 찾을 수 없습니다."));
 		return new MemberDetails(member);
 	}

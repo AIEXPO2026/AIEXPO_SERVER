@@ -37,9 +37,18 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth ->
 						auth
-								.requestMatchers("/auth/signup", "/auth/signin",
+								.requestMatchers(
+										"/auth/signup", "/auth/signin",
 										"/auth/email/send", "/auth/email/verify",
-										"/auth/password").permitAll()
+										"/swagger-ui/**", "/v3/api-docs/**"
+								).permitAll()
+
+								.requestMatchers(
+										"/auth/password",
+										"/auth/signout",
+										"/travel/start", "/travel/finish",
+										"/travel/edit/**"
+										).hasAnyAuthority("USER", "ADMIN")
 								.anyRequest().authenticated()
 				)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -59,3 +68,4 @@ public class SecurityConfig {
 		return new CorsFilter(source);
 	}
 }
+
