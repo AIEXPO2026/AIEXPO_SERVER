@@ -1,16 +1,17 @@
 package com.spring.aiexpo2026.global.jwt;
 
-import com.spring.aiexpo2026.domain.auth.data.request.GenerateTokenRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.GenerateTokenRequest;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import com.spring.aiexpo2026.global.exception.statuscode.CommonStatusCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -22,17 +23,10 @@ public class JwtProvider {
 	private final SecretKey key;
 	private final long tokenValidity = 7200000; // 2시간
 
-	public JwtProvider() {
-		Dotenv dotenv = Dotenv.configure()
-				.directory("./")
-				.load();
-
-		String secret = dotenv.get("JWT_SECRET");
-
+	public JwtProvider(@Value("${spring.jwt.secret}") String secret) {
 		if (secret == null || secret.isEmpty()) {
 			throw new ApplicationException(CommonStatusCode.UNKNOWN_JWT_SECRET);
 		}
-
 		this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 	}
 
@@ -43,7 +37,7 @@ public class JwtProvider {
 
 		return Jwts
 				.builder()
-				.subject(request.username())
+				.subject(request.nickname())
 
 				.claim("tokenType", "accessToken")
 				.claim("role", request.role())
@@ -54,31 +48,13 @@ public class JwtProvider {
 				.compact();
 	}
 
-	public String getUsername(String token) {
+	public String getNickname(String token) {
 		Claims claims = Jwts.parser()
 				.verifyWith(key)
 				.build()
 				.parseSignedClaims(token)
 				.getPayload();
 		return claims.getSubject();
-	}
-
-	public String getEmail(String token) {
-		Claims claims = Jwts.parser()
-				.verifyWith(key)
-				.build()
-				.parseSignedClaims(token)
-				.getPayload();
-		return claims.get("email", String.class);
-	}
-
-	public String getRole(String token) {
-		Claims claims = Jwts.parser()
-				.verifyWith(key)
-				.build()
-				.parseSignedClaims(token)
-				.getPayload();
-		return claims.get("role").toString();
 	}
 
 	public boolean validateToken(String token) {
@@ -111,6 +87,8 @@ public class JwtProvider {
 		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
 			return bearerToken.substring(7);
 		}
-		return null;
+
+		Cookie cookie = WebUtils.getCookie(request, "accessToken");
+		return cookie != null ? cookie.getValue() : null;
 	}
 }

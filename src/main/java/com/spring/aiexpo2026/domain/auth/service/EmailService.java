@@ -1,8 +1,8 @@
 package com.spring.aiexpo2026.domain.auth.service;
 
-import com.spring.aiexpo2026.domain.auth.data.request.SendEmailRequest;
-import com.spring.aiexpo2026.domain.auth.data.request.VerifyEmailRequest;
-import com.spring.aiexpo2026.domain.auth.data.response.VerifyEmailResponse;
+import com.spring.aiexpo2026.domain.auth.dto.request.SendEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.VerifyEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.response.VerifyEmailResponse;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 
 public interface EmailService {
