@@ -1,6 +1,6 @@
 package com.spring.aiexpo2026.global.jwt;
 
-import com.spring.aiexpo2026.domain.member.entity.Member;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -24,12 +24,12 @@ public class MemberDetails implements UserDetails {
 
 	@Override
 	public @Nullable String getPassword() {
-		return member.getPassword();
+		return member.getPasswordHash();
 	}
 
 	@Override
 	public String getUsername() {
-		return member.getUsername();
+		return member.getNickname();
 	}
 
 	@Override

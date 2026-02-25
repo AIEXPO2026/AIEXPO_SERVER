@@ -1,18 +1,21 @@
 package com.spring.aiexpo2026.domain.auth.controller;
 
-import com.spring.aiexpo2026.domain.auth.data.request.SendEmailRequest;
-import com.spring.aiexpo2026.domain.auth.data.request.VerifyEmailRequest;
-import com.spring.aiexpo2026.domain.auth.data.response.VerifyEmailResponse;
+import com.spring.aiexpo2026.domain.auth.dto.request.SendEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.VerifyEmailRequest;
+import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.VerifyEmailResponse;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
-import com.spring.aiexpo2026.domain.member.data.request.ChangePasswordRequest;
-import com.spring.aiexpo2026.domain.member.data.request.SignInRequest;
-import com.spring.aiexpo2026.domain.member.data.request.SignUpRequest;
-import com.spring.aiexpo2026.domain.member.data.response.ChangePasswordResponse;
-import com.spring.aiexpo2026.domain.member.data.response.SignInResponse;
-import com.spring.aiexpo2026.domain.member.data.response.SignUpResponse;
-import com.spring.aiexpo2026.domain.member.service.MemberService;
+import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.SignInRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.SignUpRequest;
+import com.spring.aiexpo2026.domain.auth.service.MemberService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +28,20 @@ public class AuthController {
 	private final EmailService emailService;
 
 	@PostMapping("/signup")
-	public ApiResponse<SignUpResponse> signUp(@RequestBody SignUpRequest request) {
+	public ApiResponse<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
 		return memberService.signUp(request);
+	}
+
+	@PostMapping("/signin")
+	public ApiResponse<SignInResponse> signIn(@Valid @RequestBody SignInRequest request,
+											  HttpServletResponse response) {
+		return memberService.signIn(request, response);
+	}
+
+	@PostMapping("/signout")
+	public ApiResponse<SignOutResponse> signOut(HttpServletRequest httpServletRequest,
+												HttpServletResponse httpServletResponse) {
+		return memberService.signOut(httpServletRequest, httpServletResponse);
 	}
 
 	@PostMapping("/email/send")
@@ -35,18 +50,13 @@ public class AuthController {
 	}
 
 	@PostMapping("/email/verify")
-	public ApiResponse<VerifyEmailResponse> verifyEmail(@RequestBody VerifyEmailRequest request) {
+	public ApiResponse<VerifyEmailResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
 		return emailService.verifyEmail(request);
 	}
 
-	@PostMapping("/signin")
-	public ApiResponse<SignInResponse> signIn(@RequestBody SignInRequest request,
-											  HttpServletResponse response) {
-		return memberService.signIn(request, response);
-	}
-
 	@PutMapping("/password")
-	public ApiResponse<ChangePasswordResponse> changePassword(@RequestBody ChangePasswordRequest request) {
-		return memberService.changePassword(request);
+	public ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
+															  @Valid @RequestBody ChangePasswordRequest request) {
+		return memberService.changePassword(httpServletRequest, request);
 	}
 }
