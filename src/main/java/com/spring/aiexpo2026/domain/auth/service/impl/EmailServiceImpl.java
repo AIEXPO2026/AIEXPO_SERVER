@@ -8,7 +8,6 @@ import com.spring.aiexpo2026.domain.auth.entity.Role;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
-import com.spring.aiexpo2026.global.config.RedisConfig;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +20,8 @@ import jakarta.mail.internet.MimeMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -38,19 +37,19 @@ public class EmailServiceImpl implements EmailService {
 
 	// 인증번호
 	public int authNum() {
-		return 100000 + new Random().nextInt(899999);
+		return 100000 + new SecureRandom().nextInt(899999);
 	}
 
 	@Override
 	public void sendEmail(SendEmailRequest request) {
 		int authNum = authNum();
 
-		String title = "서비스 이름";
+		String title = "길담";
 		String message = """
         <!DOCTYPE html>
         <html lang="ko">
         <body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;">
-          <table width="100%%" cellpadding="0" cellspacing="0">
+          <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td align="center" style="padding:40px 16px;">
                 <table width="480" cellpadding="0" cellspacing="0"
@@ -95,7 +94,7 @@ public class EmailServiceImpl implements EmailService {
 
                   <tr>
                     <td style="padding-top:32px; text-align:center; font-size:12px; color:#aaa;">
-                      اللّٰهُ أَكْبَر
+                      길담
                     </td>
                   </tr>
 
@@ -111,7 +110,7 @@ public class EmailServiceImpl implements EmailService {
 		MimeMessage sendMessage = mailSender.createMimeMessage();
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(sendMessage, true, "utf-8");
-			helper.setFrom(serviceName, "서비스 이름");
+			helper.setFrom(serviceName, "길담");
 			helper.setTo(request.email());
 			helper.setSubject(title);
 			helper.setText(content, true);
