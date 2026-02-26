@@ -137,4 +137,17 @@ public class EmailServiceImpl implements EmailService {
 			throw new ApplicationException(AuthStatusCode.CANNOT_VERIFY_EMAIL);
 		}
 	}
+
+	@Override
+	@Transactional
+	public void verifyEmailForSignUp(VerifyEmailRequest verifyEmailRequest) {
+		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+		String code = valueOperations.get(verifyEmailRequest.email());
+
+		if (Objects.equals(code, verifyEmailRequest.authNum())) {
+			redisTemplate.delete(verifyEmailRequest.email());
+		} else {
+			throw new ApplicationException(AuthStatusCode.CANNOT_VERIFY_EMAIL);
+		}
+	}
 }

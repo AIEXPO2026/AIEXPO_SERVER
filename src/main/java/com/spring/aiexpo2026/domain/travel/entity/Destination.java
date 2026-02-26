@@ -31,5 +31,5 @@ public class Destination {
 	private BigDecimal longitude;
 
 	@Column(precision = 5, scale = 2)
-	private BigDecimal base_score;
+	private BigDecimal baseScore;
 }
