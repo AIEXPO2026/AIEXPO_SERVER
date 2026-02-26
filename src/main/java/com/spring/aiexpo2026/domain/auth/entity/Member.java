@@ -47,6 +47,9 @@ public class Member {
 	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
 	private List<Travel> travels = new ArrayList<>();
 
+	@Builder.Default
+	private int credit = 0;
+
 	public void changePassword(ChangePasswordRequest request,
 							   PasswordEncoder passwordEncoder) {
 		if (!passwordEncoder.matches(request.oldPassword(), this.passwordHash)) {
