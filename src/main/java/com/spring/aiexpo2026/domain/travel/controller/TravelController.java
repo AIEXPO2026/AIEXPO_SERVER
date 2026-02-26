@@ -3,10 +3,7 @@ package com.spring.aiexpo2026.domain.travel.controller;
 import com.spring.aiexpo2026.domain.travel.data.request.AttractionsHistoryRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.EditTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
-import com.spring.aiexpo2026.domain.travel.data.response.EditTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.FinishTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.TravelHistoryResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.*;
 import com.spring.aiexpo2026.domain.travel.service.TravelService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,10 +53,10 @@ public class TravelController {
 	}
 
 	@PostMapping("/{travelId}/attractions")
-	public ApiResponse<?> attractionsHistory(HttpServletRequest httpServletRequest,
-											 @PathVariable Long travelId,
-											 @RequestPart("request") AttractionsHistoryRequest attractionsHistoryRequest,
-											 @RequestPart("file") MultipartFile multipartFile) {
+	public ApiResponse<AttractionsResponse> attractionsHistory(HttpServletRequest httpServletRequest,
+															   @PathVariable Long travelId,
+															   @RequestPart("request") AttractionsHistoryRequest attractionsHistoryRequest,
+															   @RequestPart("file") MultipartFile multipartFile) {
 
 		return travelService.attractionsHistory(
 				httpServletRequest,
@@ -67,5 +64,11 @@ public class TravelController {
 				attractionsHistoryRequest,
 				multipartFile
 		);
+	}
+
+	@GetMapping("/{travelId}/attractions")
+	public ApiResponse<List<GetAttractionsResponse>> getAttractionsHistory(HttpServletRequest httpServletRequest,
+															  @PathVariable Long travelId) {
+		return ApiResponse.ok(travelService.getAttractionsHistory(httpServletRequest, travelId));
 	}
 }

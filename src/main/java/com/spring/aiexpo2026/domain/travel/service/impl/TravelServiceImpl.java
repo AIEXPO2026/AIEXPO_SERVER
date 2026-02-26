@@ -175,6 +175,24 @@ public class TravelServiceImpl implements TravelService {
 		}
 	}
 
+	@Override
+	public List<GetAttractionsResponse> getAttractionsHistory(HttpServletRequest httpServletRequest,
+															  Long travelId) {
+		Member member = getNicknameFromToken(httpServletRequest);
+
+		Travel travel = travelRepository.findById(travelId).orElseThrow(()
+				-> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
+
+		if (!travel.getMember().getId().equals(member.getId())) {
+			throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
+		}
+
+		return attractionsRepository.findByTravelIdOrderByCreatedAtDesc(travelId)
+				.stream()
+				.map(GetAttractionsResponse::from)
+				.toList();
+	}
+
 	public Member getNicknameFromToken(HttpServletRequest servletRequest) {
 		String token = jwtProvider.resolveToken(servletRequest);
 		if (token == null || !jwtProvider.validateToken(token)) {
