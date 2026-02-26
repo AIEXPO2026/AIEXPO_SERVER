@@ -10,6 +10,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -56,6 +58,9 @@ public class Travel {
 
 	@Builder.Default
 	private boolean publicTravel = false; // 여행 공개 여부
+
+	@OneToMany(mappedBy = "travel", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<Attractions> attractions = new ArrayList<>();
 
 	public void updateEndDate(LocalDate endDate) {
 		this.endDate = endDate;

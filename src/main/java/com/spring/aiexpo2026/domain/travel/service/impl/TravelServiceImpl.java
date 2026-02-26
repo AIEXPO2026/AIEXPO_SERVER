@@ -3,15 +3,15 @@ package com.spring.aiexpo2026.domain.travel.service.impl;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.travel.data.request.AttractionsHistoryRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.EditTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
-import com.spring.aiexpo2026.domain.travel.data.response.EditTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.FinishTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.TravelHistoryResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.*;
+import com.spring.aiexpo2026.domain.travel.entity.Attractions;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import com.spring.aiexpo2026.domain.travel.entity.TravelStatus;
 import com.spring.aiexpo2026.domain.travel.exception.TravelStatusCode;
+import com.spring.aiexpo2026.domain.travel.repository.AttractionsRepository;
 import com.spring.aiexpo2026.domain.travel.repository.TravelRepository;
 import com.spring.aiexpo2026.domain.travel.service.TravelService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
@@ -19,12 +19,20 @@ import com.spring.aiexpo2026.global.exception.ApplicationException;
 import com.spring.aiexpo2026.global.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +42,10 @@ public class TravelServiceImpl implements TravelService {
 
 	private final TravelRepository travelRepository;
 	private final MemberRepository memberRepository;
+	private final AttractionsRepository attractionsRepository;
+
+	@Value("${file.dir}")
+	String directory;
 
 	@Override
 	@Transactional
@@ -110,6 +122,57 @@ public class TravelServiceImpl implements TravelService {
 				.stream()
 				.map(TravelHistoryResponse::from)
 				.toList());
+	}
+
+	@Override
+	@Transactional
+	public ApiResponse<AttractionsResponse> attractionsHistory(HttpServletRequest httpServletRequest,
+											 Long travelId,
+											 AttractionsHistoryRequest attractionsHistoryRequest,
+											 MultipartFile multipartFile) {
+		try {
+			Member member = getNicknameFromToken(httpServletRequest);
+
+			Travel travel = travelRepository.findById(travelId)
+					.orElseThrow(() -> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
+
+			if (!travel.getMember().getId().equals(member.getId())) {
+				throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
+			}
+
+			Path setDirectory = Paths.get(directory).toAbsolutePath().normalize();
+			if (!Files.exists(setDirectory)) {
+				Files.createDirectories(setDirectory);
+			}
+
+			String rawName = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
+			String fileName = UUID.randomUUID() + "_" + rawName;
+
+			Path targetPath = setDirectory.resolve(fileName).normalize();
+
+			if (!targetPath.startsWith(setDirectory)) {
+				throw new ApplicationException(TravelStatusCode.UNKNOWN_ERROR);
+			}
+
+			multipartFile.transferTo(targetPath.toFile());
+
+			String photoURL = "/photos/" + fileName;
+
+			Attractions attractions = Attractions.builder()
+					.travel(travel)
+					.duration(attractionsHistoryRequest.duration())
+					.photoURL(photoURL)
+					.detail(attractionsHistoryRequest.detail())
+					.createdAt(LocalDateTime.now())
+					.build();
+
+			attractionsRepository.save(attractions);
+
+			return ApiResponse.ok(AttractionsResponse.of("저장했습니다."));
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public Member getNicknameFromToken(HttpServletRequest servletRequest) {
