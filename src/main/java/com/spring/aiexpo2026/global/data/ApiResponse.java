@@ -2,7 +2,6 @@ package com.spring.aiexpo2026.global.data;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.spring.aiexpo2026.global.exception.statuscode.StatusCode;
 import org.springframework.http.HttpStatus;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

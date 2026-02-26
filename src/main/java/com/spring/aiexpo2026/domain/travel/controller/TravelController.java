@@ -5,12 +5,16 @@ import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.response.EditTravelResponse;
 import com.spring.aiexpo2026.domain.travel.data.response.FinishTravelResponse;
 import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.TravelHistoryResponse;
+import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import com.spring.aiexpo2026.domain.travel.service.TravelService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,5 +46,11 @@ public class TravelController {
 				id,
 				editTravelRequest
 		);
+	}
+
+	// 누적 여행 기록 조회
+	@GetMapping("/my")
+	public ApiResponse<List<TravelHistoryResponse>> travelHistory(HttpServletRequest httpServletRequest) {
+		return travelService.travelHistory(httpServletRequest);
 	}
 }

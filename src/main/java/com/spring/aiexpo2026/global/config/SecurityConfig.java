@@ -40,6 +40,7 @@ public class SecurityConfig {
 								.requestMatchers(
 										"/auth/signup", "/auth/signin",
 										"/auth/email/send", "/auth/email/verify",
+										"/auth/password/reset",
 										"/swagger-ui/**", "/v3/api-docs/**"
 								).permitAll()
 
@@ -47,7 +48,8 @@ public class SecurityConfig {
 										"/auth/password",
 										"/auth/signout",
 										"/travel/start", "/travel/finish",
-										"/travel/edit/**"
+										"/travel/edit/**",
+										"/travel/my"
 										).hasAnyAuthority("USER", "ADMIN")
 								.anyRequest().authenticated()
 				)

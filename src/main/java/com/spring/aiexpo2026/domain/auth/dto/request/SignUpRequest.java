@@ -2,7 +2,6 @@ package com.spring.aiexpo2026.domain.auth.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spring.aiexpo2026.domain.auth.entity.Member;
-import com.spring.aiexpo2026.domain.auth.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -11,6 +10,9 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public record SignUpRequest(
+
+		@NotBlank
+		String name,
 
 		@NotBlank
 		String nickname,
@@ -24,11 +26,15 @@ public record SignUpRequest(
 
 		@Email
 		@NotBlank(message = "이메일을 입력해주세요.")
-		String email
+		String email,
+
+		@NotBlank(message = "인증코드를 입력해주세요.")
+		String authNum
 ) {
 
 	public Member toEntity(String encodedPassword) {
 		return Member.builder()
+				.name(name)
 				.nickname(nickname)
 				.passwordHash(encodedPassword)
 				.email(email)

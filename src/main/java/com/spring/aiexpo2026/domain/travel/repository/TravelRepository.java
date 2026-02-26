@@ -36,4 +36,6 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 	Optional<Travel> findById(Long id);
 
 	Optional<Travel> findByMemberAndTravelStatus(Member member, TravelStatus travelStatus);
+
+	List<Travel> findByMember(Member member);
 }

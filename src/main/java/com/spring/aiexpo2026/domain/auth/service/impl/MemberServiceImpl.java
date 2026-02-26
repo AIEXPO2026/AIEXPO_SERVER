@@ -1,13 +1,11 @@
 package com.spring.aiexpo2026.domain.auth.service.impl;
 
-import com.spring.aiexpo2026.domain.auth.dto.request.GenerateTokenRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.*;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
 import com.spring.aiexpo2026.domain.auth.entity.Role;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
+import com.spring.aiexpo2026.domain.auth.service.EmailService;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
-import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
-import com.spring.aiexpo2026.domain.auth.dto.request.SignInRequest;
-import com.spring.aiexpo2026.domain.auth.dto.request.SignUpRequest;
 import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
@@ -19,9 +17,13 @@ import com.spring.aiexpo2026.global.exception.ApplicationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -29,20 +31,28 @@ public class MemberServiceImpl implements MemberService {
 
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
+
+	private final EmailService emailService;
 	private final TokenService tokenService;
+
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Override
 	@Transactional
-	public ApiResponse<SignUpResponse> signUp(SignUpRequest request) {
-		if (memberRepository.existsByNickname(request.nickname())) {
+	public ApiResponse<SignUpResponse> signUp(SignUpRequest signUpRequest) {
+		if (memberRepository.existsByNickname(signUpRequest.nickname())) {
 			throw new ApplicationException(AuthStatusCode.USERNAME_ALREADY_EXIST);
 		}
-		if (memberRepository.existsByEmail(request.email())) {
+		if (memberRepository.existsByEmail(signUpRequest.email())) {
 			throw new ApplicationException(AuthStatusCode.EMAIL_ALREADY_EXIST);
 		}
+		emailService.verifyEmail(new VerifyEmailRequest(
+				signUpRequest.email(),
+				signUpRequest.authNum())
+		);
 
-		String encodedPassword = passwordEncoder.encode(request.passwordHash());
-		Member member = request.toEntity(encodedPassword);
+		String encodedPassword = passwordEncoder.encode(signUpRequest.passwordHash());
+		Member member = signUpRequest.toEntity(encodedPassword);
 
 		memberRepository.save(member);
 
@@ -94,6 +104,24 @@ public class MemberServiceImpl implements MemberService {
 		);
 
 		return ApiResponse.ok(ChangePasswordResponse.of("변경되었습니다."));
+	}
+
+	@Override
+	@Transactional
+	public boolean resetPassword(ResetPasswordRequest resetPasswordRequest) {
+		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+		String code = valueOperations.get(resetPasswordRequest.email());
+
+		Member member = memberRepository.findByEmail(resetPasswordRequest.email()).orElseThrow(()
+				-> new ApplicationException(AuthStatusCode.CANNOT_FIND_EMAIL));
+
+		if (Objects.equals(code, resetPasswordRequest.authNum())) {
+			member.resetPassword(passwordEncoder.encode(resetPasswordRequest.passwordHash()));
+			redisTemplate.delete(resetPasswordRequest.email());
+			return true;
+		} else {
+			throw new ApplicationException(AuthStatusCode.CANNOT_VERIFY_EMAIL);
+		}
 	}
 
 	public Member getMemberFromToken(HttpServletRequest httpServletRequest) {
