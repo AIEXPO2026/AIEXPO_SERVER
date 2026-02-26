@@ -48,7 +48,8 @@ public class SecurityConfig {
 										"/auth/password",
 										"/auth/signout",
 										"/travel/start", "/travel/finish",
-										"/travel/edit/**"
+										"/travel/edit/**",
+										"/travel/my"
 										).hasAnyAuthority("USER", "ADMIN")
 								.anyRequest().authenticated()
 				)

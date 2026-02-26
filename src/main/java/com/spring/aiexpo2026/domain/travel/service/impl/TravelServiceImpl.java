@@ -8,6 +8,7 @@ import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.response.EditTravelResponse;
 import com.spring.aiexpo2026.domain.travel.data.response.FinishTravelResponse;
 import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.TravelHistoryResponse;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import com.spring.aiexpo2026.domain.travel.entity.TravelStatus;
 import com.spring.aiexpo2026.domain.travel.exception.TravelStatusCode;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class TravelServiceImpl implements TravelService {
 	@Transactional
 	public ApiResponse<StartTravelResponse> startTravel(HttpServletRequest servletRequest,
 														StartTravelRequest startTravelRequest) {
-		Member member = getUsernameFromToken(servletRequest);
+		Member member = getNicknameFromToken(servletRequest);
 
 		TravelStatus status = validDateAndSetTravelStatus(member.getId(),
 				startTravelRequest.startDate(),
@@ -63,7 +65,7 @@ public class TravelServiceImpl implements TravelService {
 	@Override
 	@Transactional
 	public ApiResponse<FinishTravelResponse> finishTravel(HttpServletRequest servletRequest) {
-		Member member = getUsernameFromToken(servletRequest);
+		Member member = getNicknameFromToken(servletRequest);
 
 		LocalDate today = LocalDate.now();
 
@@ -83,7 +85,7 @@ public class TravelServiceImpl implements TravelService {
 	public ApiResponse<EditTravelResponse> editTravel(HttpServletRequest servletRequest,
 													  Long id,
 													  EditTravelRequest editTravelRequest) {
-		getUsernameFromToken(servletRequest);
+		getNicknameFromToken(servletRequest);
 
 		Travel travel = travelRepository.findById(id).orElseThrow(()
 				-> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
@@ -100,7 +102,17 @@ public class TravelServiceImpl implements TravelService {
 		throw new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL);
 	}
 
-	public Member getUsernameFromToken(HttpServletRequest servletRequest) {
+	@Override
+	public ApiResponse<List<TravelHistoryResponse>> travelHistory(HttpServletRequest servletRequest) {
+		Member member = getNicknameFromToken(servletRequest);
+
+		return ApiResponse.ok(travelRepository.findByMember(member)
+				.stream()
+				.map(TravelHistoryResponse::from)
+				.toList());
+	}
+
+	public Member getNicknameFromToken(HttpServletRequest servletRequest) {
 		String token = jwtProvider.resolveToken(servletRequest);
 		if (token == null || !jwtProvider.validateToken(token)) {
 			throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
