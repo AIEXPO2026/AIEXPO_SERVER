@@ -1,5 +1,6 @@
 package com.spring.aiexpo2026.domain.profile.controller;
 
+import com.spring.aiexpo2026.domain.bookmark.data.request.AddBookmarkRequest;
 import com.spring.aiexpo2026.domain.bookmark.data.response.BookmarkResponse;
 import com.spring.aiexpo2026.domain.bookmark.service.BookmarkService;
 import com.spring.aiexpo2026.domain.credit.data.request.ChargeCreditRequest;
@@ -19,6 +20,14 @@ import java.util.List;
 public class ProfileController {
     private final BookmarkService bookmarkService;
     private final CreditService creditService;
+
+    @PostMapping("/bookmark")
+    public ApiResponse<Void> addBookmark(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody AddBookmarkRequest request
+    ) {
+        return bookmarkService.addBookmark(userDetails.getUsername(), request);
+    }
 
     @GetMapping("/bookmark")
     public
