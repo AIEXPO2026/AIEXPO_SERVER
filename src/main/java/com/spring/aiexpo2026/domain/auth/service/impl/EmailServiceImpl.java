@@ -2,13 +2,11 @@ package com.spring.aiexpo2026.domain.auth.service.impl;
 
 import com.spring.aiexpo2026.domain.auth.dto.request.SendEmailRequest;
 import com.spring.aiexpo2026.domain.auth.dto.request.VerifyEmailRequest;
-import com.spring.aiexpo2026.domain.auth.dto.response.VerifyEmailResponse;
 import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.domain.auth.entity.Role;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
-import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +53,6 @@ public class EmailServiceImpl implements EmailService {
                 <table width="480" cellpadding="0" cellspacing="0"
                        style="background-color:#ffffff; border-radius:12px; padding:32px;
                               box-shadow:0 4px 12px rgba(0,0,0,0.08);">
-                  
                   <tr>
                     <td style="text-align:center; padding-bottom:24px;">
                       <h2 style="margin:0; color:#222;"> 회원가입 인증 코드</h2>
@@ -125,7 +122,7 @@ public class EmailServiceImpl implements EmailService {
 
 	@Override
 	@Transactional
-	public ApiResponse<VerifyEmailResponse> verifyEmail(VerifyEmailRequest request) {
+	public boolean verifyEmail(VerifyEmailRequest request) {
 		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 		String code = valueOperations.get(request.email());
 
@@ -135,7 +132,7 @@ public class EmailServiceImpl implements EmailService {
 		if (Objects.equals(code, request.authNum())) {
 			member.updateRole(Role.USER);
 			redisTemplate.delete(request.email());
-			return ApiResponse.ok(VerifyEmailResponse.success("이메일이 인증되었습니다."));
+			return true;
 		} else {
 			throw new ApplicationException(AuthStatusCode.CANNOT_VERIFY_EMAIL);
 		}

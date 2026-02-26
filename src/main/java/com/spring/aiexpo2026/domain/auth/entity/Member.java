@@ -1,6 +1,7 @@
 package com.spring.aiexpo2026.domain.auth.entity;
 
 import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
+import com.spring.aiexpo2026.domain.auth.dto.request.ResetPasswordRequest;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
@@ -29,6 +30,8 @@ public class Member {
 
 	private String email;
 
+	private String name;
+
 	@Column(name = "password_hash")
 	private String passwordHash;
 
@@ -54,6 +57,10 @@ public class Member {
 		}
 
 		this.passwordHash = passwordEncoder.encode(request.newPassword());
+	}
+
+	public void resetPassword(String passwordHash) {
+		this.passwordHash = passwordHash;
 	}
 
 	public void updateRole(Role role) {
