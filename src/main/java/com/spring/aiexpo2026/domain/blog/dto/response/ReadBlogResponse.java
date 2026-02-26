@@ -18,7 +18,7 @@ public record ReadBlogResponse(
         return new ReadBlogResponse(
                 blog.getId(),
                 blog.getTitle(),
-                blog.getMember().getUsername(),
+                blog.getMember().getNickname(),
                 blog.getDate(),
                 blog.getCountry()
         );

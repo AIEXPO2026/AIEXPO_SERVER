@@ -8,7 +8,7 @@ import com.spring.aiexpo2026.domain.blog.dto.response.ViewBlogResponse;
 import com.spring.aiexpo2026.domain.blog.entity.Blog;
 import com.spring.aiexpo2026.domain.blog.exception.BlogStatusCode;
 import com.spring.aiexpo2026.domain.blog.repository.BlogRepository;
-import com.spring.aiexpo2026.domain.member.entity.Member;
+import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.data.PageResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;

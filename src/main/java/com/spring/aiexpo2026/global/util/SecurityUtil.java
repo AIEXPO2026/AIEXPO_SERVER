@@ -1,9 +1,8 @@
 package com.spring.aiexpo2026.global.util;
 
+import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
-import com.spring.aiexpo2026.domain.member.entity.Member;
-import com.spring.aiexpo2026.domain.member.exception.MemberStatusCode;
-import com.spring.aiexpo2026.domain.member.repository.MemberRepository;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -17,7 +16,7 @@ public class SecurityUtil {
 
     public Member getMember() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return memberRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new ApplicationException(MemberStatusCode.CANNOT_FIND_MEMBER));
+        return memberRepository.findByNickname(auth.getName())
+                .orElseThrow(() -> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
     }
 }

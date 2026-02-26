@@ -17,7 +17,7 @@ public record ViewBlogResponse(
                 blog.getContent(),
                 blog.getDate(),
                 blog.getCountry(),
-                blog.getMember().getUsername()
+                blog.getMember().getNickname()
         );
     }
 }

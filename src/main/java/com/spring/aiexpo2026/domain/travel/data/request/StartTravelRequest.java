@@ -1,6 +1,7 @@
 package com.spring.aiexpo2026.domain.travel.data.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,7 +13,7 @@ public record StartTravelRequest(
 		@JsonProperty("budget_min")
 		int budgetMin,
 
-		@Min(2147483647)
+		@Max(2147483647)
 		@JsonProperty("budget_max")
 		int budgetMax,
 

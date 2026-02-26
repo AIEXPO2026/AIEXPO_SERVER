@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-  name: AI Expo 2026
+    name: AI Expo 2026
 
   datasource:
     url: ${DB_URL}
