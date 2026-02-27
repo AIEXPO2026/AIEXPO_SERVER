@@ -12,5 +12,5 @@ public interface EmailService {
 
 	boolean verifyEmail(VerifyEmailRequest verifyEmailRequest);
 
-	void verifyEmailForSignUp(VerifyEmailRequest verifyEmailRequest);
+	boolean verifyEmailForSignUp(VerifyEmailRequest verifyEmailRequest);
 }

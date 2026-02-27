@@ -26,10 +26,7 @@ public record SignUpRequest(
 
 		@Email
 		@NotBlank(message = "이메일을 입력해주세요.")
-		String email,
-
-		@NotBlank(message = "인증코드를 입력해주세요.")
-		String authNum
+		String email
 ) {
 
 	public Member toEntity(String encodedPassword) {

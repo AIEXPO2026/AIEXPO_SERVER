@@ -50,8 +50,8 @@ public class AuthController {
 	}
 
 	@PostMapping("/signup/email/verify")
-	public void verifyEmailForSignUp(@Valid @RequestBody VerifyEmailRequest verifyEmailRequest) {
-		emailService.verifyEmailForSignUp(verifyEmailRequest);
+	public boolean verifyEmailForSignUp(@Valid @RequestBody VerifyEmailRequest verifyEmailRequest) {
+		return emailService.verifyEmailForSignUp(verifyEmailRequest);
 	}
 
 	@PutMapping("/password")

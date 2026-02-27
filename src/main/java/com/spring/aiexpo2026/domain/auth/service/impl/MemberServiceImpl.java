@@ -46,10 +46,6 @@ public class MemberServiceImpl implements MemberService {
 		if (memberRepository.existsByEmail(signUpRequest.email())) {
 			throw new ApplicationException(AuthStatusCode.EMAIL_ALREADY_EXIST);
 		}
-		emailService.verifyEmailForSignUp(new VerifyEmailRequest(
-				signUpRequest.email(),
-				signUpRequest.authNum())
-		);
 
 		String encodedPassword = passwordEncoder.encode(signUpRequest.passwordHash());
 		Member member = signUpRequest.toEntity(encodedPassword);
