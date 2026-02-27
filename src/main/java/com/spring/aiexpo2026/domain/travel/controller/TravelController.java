@@ -1,18 +1,16 @@
 package com.spring.aiexpo2026.domain.travel.controller;
 
+import com.spring.aiexpo2026.domain.travel.data.request.AttractionsHistoryRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.EditTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
-import com.spring.aiexpo2026.domain.travel.data.response.EditTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.FinishTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
-import com.spring.aiexpo2026.domain.travel.data.response.TravelHistoryResponse;
-import com.spring.aiexpo2026.domain.travel.entity.Travel;
+import com.spring.aiexpo2026.domain.travel.data.response.*;
 import com.spring.aiexpo2026.domain.travel.service.TravelService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -52,5 +50,25 @@ public class TravelController {
 	@GetMapping("/my")
 	public ApiResponse<List<TravelHistoryResponse>> travelHistory(HttpServletRequest httpServletRequest) {
 		return travelService.travelHistory(httpServletRequest);
+	}
+
+	@PostMapping("/{travelId}/attractions")
+	public ApiResponse<AttractionsResponse> attractionsHistory(HttpServletRequest httpServletRequest,
+															   @PathVariable Long travelId,
+															   @RequestPart("request") AttractionsHistoryRequest attractionsHistoryRequest,
+															   @RequestPart("file") MultipartFile multipartFile) {
+
+		return travelService.attractionsHistory(
+				httpServletRequest,
+				travelId,
+				attractionsHistoryRequest,
+				multipartFile
+		);
+	}
+
+	@GetMapping("/{travelId}/attractions")
+	public ApiResponse<List<GetAttractionsResponse>> getAttractionsHistory(HttpServletRequest httpServletRequest,
+															  @PathVariable Long travelId) {
+		return ApiResponse.ok(travelService.getAttractionsHistory(httpServletRequest, travelId));
 	}
 }

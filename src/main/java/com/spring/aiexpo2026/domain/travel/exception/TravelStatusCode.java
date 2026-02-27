@@ -15,7 +15,9 @@ public enum TravelStatusCode implements StatusCode {
 	CANNOT_FIND_TRAVEL("CANNOT_FIND_TRAVEL", "요청한 여행을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	CANNOT_EDIT_TRAVEL("CANNOT_EDIT_TRAVEL", "여행을 수정 수 없습니다.", HttpStatus.BAD_REQUEST),
 	WRONG_START_DATE("WRONG_START_DATE", "여행 시작일은 오늘 이후여야 합니다.", HttpStatus.BAD_REQUEST),
-	WRONG_END_DATE("WRONG_END_DATE", "여행 종료일은 오늘 이후여야 합니다.", HttpStatus.BAD_REQUEST);
+	WRONG_END_DATE("WRONG_END_DATE", "여행 종료일은 오늘 이후여야 합니다.", HttpStatus.BAD_REQUEST),
+
+	UNKNOWN_ERROR("UNKNOWN_ERROR", "에러메시지 뭐로 할지 아직 못 정함", HttpStatus.BAD_REQUEST);
 
 
 	private final String code;
