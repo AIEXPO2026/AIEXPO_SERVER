@@ -49,6 +49,11 @@ public class AuthController {
 		return emailService.verifyEmail(request);
 	}
 
+	@PostMapping("/signup/email/verify")
+	public void verifyEmailForSignUp(@Valid @RequestBody VerifyEmailRequest verifyEmailRequest) {
+		emailService.verifyEmailForSignUp(verifyEmailRequest);
+	}
+
 	@PutMapping("/password")
 	public ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
 															  @Valid @RequestBody ChangePasswordRequest request) {

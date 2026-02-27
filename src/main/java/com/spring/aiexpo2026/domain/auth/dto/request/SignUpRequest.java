@@ -18,7 +18,6 @@ public record SignUpRequest(
 		@NotBlank
 		String nickname,
 
-		@NotBlank(message = "비밀번호를 입력해주세요")
 		@JsonProperty("password_hash")
 		@Size(min = 8, max = 32, message = "비밀번호는 8자 이상 32자 이하여야 합니다.")
 		@Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\":{}|<>]{8,}$",
