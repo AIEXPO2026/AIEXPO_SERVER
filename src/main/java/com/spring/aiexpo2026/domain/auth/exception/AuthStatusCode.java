@@ -18,7 +18,7 @@ public enum AuthStatusCode implements StatusCode {
 
 	CANNOT_FIND_EMAIL("CANNOT_FIND_EMAIL", "이메일이 존재 하지 않습니다.", HttpStatus.NOT_FOUND),
 	EMAIL_ALREADY_EXIST("EMAIL_ALREADY_EXIST", "해당 이메일로 가입된 계정이 존재합니다.", HttpStatus.BAD_REQUEST),
-	CANNOT_VERIFY_EMAIL("CANNOT_VERIFY_EMAIL", "이메일을 인증할 수 없습니다", HttpStatus.NOT_FOUND),
+	CANNOT_VERIFY_EMAIL("CANNOT_VERIFY_EMAIL", "이메일을 인증할 수 없습니다", HttpStatus.BAD_REQUEST),
 	USER_NOT_VERIFY("USER_NOT_VERIFY", "이메일 인증 후 서비스를 이용할 수 있습니다.", HttpStatus.BAD_REQUEST),
 
 
