@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 

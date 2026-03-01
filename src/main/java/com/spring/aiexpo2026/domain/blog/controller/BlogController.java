@@ -10,7 +10,6 @@ import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.data.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

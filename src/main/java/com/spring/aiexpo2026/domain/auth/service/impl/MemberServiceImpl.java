@@ -4,7 +4,6 @@ import com.spring.aiexpo2026.domain.auth.dto.request.*;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
 import com.spring.aiexpo2026.domain.auth.entity.Role;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
-import com.spring.aiexpo2026.domain.auth.service.EmailService;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
 import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
@@ -32,7 +31,6 @@ public class MemberServiceImpl implements MemberService {
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	private final EmailService emailService;
 	private final TokenService tokenService;
 
 	private final RedisTemplate<String, String> redisTemplate;
