@@ -126,12 +126,10 @@ public class EmailServiceImpl implements EmailService {
 		ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 		String code = valueOperations.get(request.email());
 
-		Member member = memberRepository.findByEmail(request.email()).orElseThrow(()
+		memberRepository.findByEmail(request.email()).orElseThrow(()
 				-> new ApplicationException(AuthStatusCode.CANNOT_FIND_EMAIL));
 
 		if (Objects.equals(code, request.authNum())) {
-			member.updateRole(Role.USER);
-			redisTemplate.delete(request.email());
 			return true;
 		} else {
 			throw new ApplicationException(AuthStatusCode.CANNOT_VERIFY_EMAIL);
