@@ -3,7 +3,6 @@ package com.spring.aiexpo2026.domain.travel.data.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.aiexpo2026.domain.travel.entity.Attractions;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 

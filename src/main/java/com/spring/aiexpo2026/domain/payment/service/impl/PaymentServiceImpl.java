@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -70,9 +71,10 @@ public class PaymentServiceImpl implements PaymentService {
             if (response.statusCode() != 200) {
                 throw new ApplicationException(PaymentStatusCode.PAYMENT_CONFIRM_FAILED);
             }
-        } catch (ApplicationException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ApplicationException(PaymentStatusCode.PAYMENT_CONFIRM_FAILED);
+        } catch (IOException e) {
             throw new ApplicationException(PaymentStatusCode.PAYMENT_CONFIRM_FAILED);
         }
     }
