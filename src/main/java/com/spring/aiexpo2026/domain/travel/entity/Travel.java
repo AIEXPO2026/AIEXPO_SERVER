@@ -59,6 +59,7 @@ public class Travel {
 	@Builder.Default
 	private boolean publicTravel = false; // 여행 공개 여부
 
+	@Builder.Default
 	@OneToMany(mappedBy = "travel", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Attractions> attractions = new ArrayList<>();
 
