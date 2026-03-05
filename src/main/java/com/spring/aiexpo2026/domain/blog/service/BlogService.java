@@ -23,25 +23,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class BlogService {
     private final BlogRepository blogRepository;
     private final SecurityUtil securityUtil;
 
-    @Transactional
     public ApiResponse<MessageResponse> writeBlog(WriteBlogRequest request) {
         Member member = securityUtil.getMember();
-        blogRepository.save(Blog.builder()
-                .title(request.title())
-                .content(request.content())
-                .country(request.country())
-                .date(request.date())
-                .member(member)
-                .build());
+        blogRepository.save(request.toEntity(request, member));
 
         return ApiResponse.create(MessageResponse.of("글이 작성되었습니다."));
     }
 
+    @Transactional(readOnly = true)
     public PageResponse<ReadBlogResponse> readBlog(int page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.Direction.DESC, "id");
 
@@ -50,7 +44,7 @@ public class BlogService {
         return PageResponse.of(ReadBlogResponse.fromList(blogPage), blogPage);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ApiResponse<ViewBlogResponse> viewBlog(Long id) {
         Blog blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ApplicationException(BlogStatusCode.BLOG_NOT_FOUND));
@@ -59,7 +53,6 @@ public class BlogService {
         return ApiResponse.ok(ViewBlogResponse.of(blog));
     }
 
-    @Transactional
     public ApiResponse<MessageResponse> updateBlog(UpdateBlogRequest request, Long id) {
         Member member = securityUtil.getMember();
         Blog blog = blogRepository.findById(id)
@@ -74,7 +67,6 @@ public class BlogService {
         return ApiResponse.ok(MessageResponse.of("글이 수정되었습니다."));
     }
 
-    @Transactional
     public ApiResponse<MessageResponse> deleteBlog(Long id) {
         Member member = securityUtil.getMember();
         Blog blog = blogRepository.findById(id)
