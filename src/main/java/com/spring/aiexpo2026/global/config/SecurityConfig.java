@@ -42,7 +42,7 @@ public class SecurityConfig {
 										"/auth/email/send", "/auth/email/verify", "/auth/signup/email/verify",
 										"/auth/password/reset",
 										"/swagger-ui/**", "/v3/api-docs/**",
-										"/actuator/**"
+										"/actuator/health", "/actuator/health/**"
 								).permitAll()
 
 								.requestMatchers(
