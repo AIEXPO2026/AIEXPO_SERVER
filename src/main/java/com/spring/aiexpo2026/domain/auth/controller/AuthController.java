@@ -28,7 +28,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/signin")
-	public ApiResponse<SignInResponse> signIn(@Valid @RequestBody SignInRequest request,
+	public ApiResponse<SignInResponse> signIn(@Valid @RequestBody final SignInRequest request,
 											  HttpServletResponse response) {
 		return memberService.signIn(request, response);
 	}
@@ -40,28 +40,28 @@ public class AuthController {
 	}
 
 	@PostMapping("/email/send")
-	public void sendEmail(@Valid @RequestBody SendEmailRequest request) {
+	public void sendEmail(@Valid @RequestBody final SendEmailRequest request) {
 		emailService.sendEmail(request);
 	}
 
 	@PostMapping("/email/verify")
-	public boolean verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+	public boolean verifyEmail(@Valid @RequestBody final VerifyEmailRequest request) {
 		return emailService.verifyEmail(request);
 	}
 
 	@PostMapping("/signup/email/verify")
-	public boolean verifyEmailForSignUp(@Valid @RequestBody VerifyEmailRequest verifyEmailRequest) {
+	public boolean verifyEmailForSignUp(@Valid @RequestBody final VerifyEmailRequest verifyEmailRequest) {
 		return emailService.verifyEmailForSignUp(verifyEmailRequest);
 	}
 
 	@PutMapping("/password")
 	public ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
-															  @Valid @RequestBody ChangePasswordRequest request) {
+															  @Valid @RequestBody final ChangePasswordRequest request) {
 		return memberService.changePassword(httpServletRequest, request);
 	}
 
 	@PostMapping("/password/reset")
-	public boolean resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+	public boolean resetPassword(@Valid @RequestBody final ResetPasswordRequest resetPasswordRequest) {
 		return memberService.resetPassword(resetPasswordRequest);
 	}
 }

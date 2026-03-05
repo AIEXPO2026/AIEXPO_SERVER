@@ -64,10 +64,6 @@ public class MemberServiceImpl implements MemberService {
 			throw new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS);
 		}
 
-		if (member.getRole() == Role.USER_NOT_VERIFIED) {
-			throw new ApplicationException(AuthStatusCode.USER_NOT_VERIFY);
-		}
-
 		GenerateTokenRequest generateTokenRequest = new GenerateTokenRequest (
 				member.getNickname(),
 				member.getRole()
