@@ -10,6 +10,11 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:country.sql
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -32,7 +37,7 @@ spring:
 
   data:
     redis:
-      host: redis
+      host: localhost
       port: 6379
 
   servlet:
