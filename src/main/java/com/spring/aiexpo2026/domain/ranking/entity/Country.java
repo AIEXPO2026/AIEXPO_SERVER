@@ -1,6 +1,8 @@
 package com.spring.aiexpo2026.domain.ranking.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,5 +26,6 @@ public class Country {
     private double rating;
     private int visitCount;
     private String imageUrl;
+    @Enumerated(EnumType.STRING)
     private CountryTheme countryTheme;
 }

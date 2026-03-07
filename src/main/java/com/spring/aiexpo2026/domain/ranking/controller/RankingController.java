@@ -18,7 +18,7 @@ public class RankingController {
     private final RankingService rankingService;
 
     @GetMapping("ranking")
-    public ApiResponse<Page<Country>> getCountryRanking(@RequestParam int page) {
+    public ApiResponse<Page<Country>> getCountryRanking(@RequestParam(defaultValue = "0") int page) {
         return rankingService.getCountryRanking(page);
     }
 }
