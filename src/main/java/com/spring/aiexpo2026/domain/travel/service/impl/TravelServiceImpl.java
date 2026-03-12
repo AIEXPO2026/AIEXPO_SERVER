@@ -1,12 +1,19 @@
 package com.spring.aiexpo2026.domain.travel.service.impl;
 
-import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.travel.data.request.AttractionsHistoryRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.EditTravelRequest;
 import com.spring.aiexpo2026.domain.travel.data.request.StartTravelRequest;
-import com.spring.aiexpo2026.domain.travel.data.response.*;
+import com.spring.aiexpo2026.domain.travel.data.response.AttractionsResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.EditTravelResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.FinishTravelResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.GetAttractionsResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.StartTravelResponse;
+import com.spring.aiexpo2026.domain.travel.data.response.TravelHistoryResponse;
 import com.spring.aiexpo2026.domain.travel.entity.Attractions;
 import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import com.spring.aiexpo2026.domain.travel.entity.TravelStatus;
@@ -25,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,23 +47,27 @@ import java.util.UUID;
 public class TravelServiceImpl implements TravelService {
 
 	private final JwtProvider jwtProvider;
-
 	private final TravelRepository travelRepository;
 	private final MemberRepository memberRepository;
 	private final AttractionsRepository attractionsRepository;
+	private final ObjectMapper objectMapper;
 
 	@Value("${file.dir}")
-	String directory;
+	private String directory;
 
 	@Override
 	@Transactional
-	public ApiResponse<StartTravelResponse> startTravel(HttpServletRequest servletRequest,
-														StartTravelRequest startTravelRequest) {
-		Member member = getNicknameFromToken(servletRequest);
+	public ApiResponse<StartTravelResponse> startTravel(
+			HttpServletRequest servletRequest,
+			StartTravelRequest startTravelRequest
+	) {
+		Member member = getMemberFromToken(servletRequest);
 
-		TravelStatus status = validDateAndSetTravelStatus(member.getId(),
+		TravelStatus status = validDateAndSetTravelStatus(
+				member.getId(),
 				startTravelRequest.startDate(),
-				startTravelRequest.endDate());
+				startTravelRequest.endDate()
+		);
 
 		Travel travel = Travel.builder()
 				.member(member)
@@ -67,26 +79,25 @@ public class TravelServiceImpl implements TravelService {
 				.createdAt(LocalDateTime.now())
 				.travelStatus(status)
 				.build();
+
 		travelRepository.save(travel);
 
-		return ApiResponse.ok(StartTravelResponse.of(
-				status == (TravelStatus.TRAVEL_PLANNED) ? "여행이 계획되었습니다." : "여행이 시작되었습니다."
-		));
+		String message = status == TravelStatus.TRAVEL_PLANNED
+				? "여행이 계획되었습니다."
+				: "여행이 시작되었습니다.";
+
+		return ApiResponse.ok(StartTravelResponse.of(message));
 	}
 
 	@Override
 	@Transactional
 	public ApiResponse<FinishTravelResponse> finishTravel(HttpServletRequest servletRequest) {
-		Member member = getNicknameFromToken(servletRequest);
-
-		LocalDate today = LocalDate.now();
+		Member member = getMemberFromToken(servletRequest);
 
 		Travel travel = travelRepository.findByMemberAndTravelStatus(member, TravelStatus.TRAVELING)
-				.orElseThrow(() ->
-					new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL_TO_FINISH)
-				);
+				.orElseThrow(() -> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL_TO_FINISH));
 
-		travel.updateEndDate(today);
+		travel.updateEndDate(LocalDate.now());
 		travel.updateTravelStatus(TravelStatus.TRAVEL_FINISHED);
 
 		return ApiResponse.ok(FinishTravelResponse.of("여행이 종료되었습니다."));
@@ -94,98 +105,118 @@ public class TravelServiceImpl implements TravelService {
 
 	@Override
 	@Transactional
-	public ApiResponse<EditTravelResponse> editTravel(HttpServletRequest servletRequest,
-													  Long id,
-													  EditTravelRequest editTravelRequest) {
-		getNicknameFromToken(servletRequest);
+	public ApiResponse<EditTravelResponse> editTravel(
+			HttpServletRequest servletRequest,
+			Long id,
+			EditTravelRequest editTravelRequest
+	) {
+		Member member = getMemberFromToken(servletRequest);
 
-		Travel travel = travelRepository.findById(id).orElseThrow(()
-				-> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
+		Travel travel = travelRepository.findById(id)
+				.orElseThrow(() -> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
 
-		if (travel.getTravelStatus() == TravelStatus.TRAVEL_FINISHED) {
-			travel.updatePeopleCount(editTravelRequest.peopleCount());
-			travel.updateMood(editTravelRequest.mood());
-			travel.updateAvgWeather(editTravelRequest.avgWeather());
-			travel.updatePublicTravel(editTravelRequest.publicTravel());
+		validateTravelOwner(travel, member);
 
-			return ApiResponse.ok(EditTravelResponse.of("여행을 수정했습니다."));
+		if (travel.getTravelStatus() != TravelStatus.TRAVEL_FINISHED) {
+			throw new ApplicationException(TravelStatusCode.CANNOT_EDIT_TRAVEL);
 		}
 
-		throw new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL);
+		travel.updatePeopleCount(editTravelRequest.peopleCount());
+		travel.updateMood(editTravelRequest.mood());
+		travel.updateAvgWeather(editTravelRequest.avgWeather());
+		travel.updatePublicTravel(editTravelRequest.publicTravel());
+
+		return ApiResponse.ok(EditTravelResponse.of("여행을 수정했습니다."));
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public ApiResponse<List<TravelHistoryResponse>> travelHistory(HttpServletRequest servletRequest) {
-		Member member = getNicknameFromToken(servletRequest);
+		Member member = getMemberFromToken(servletRequest);
 
-		return ApiResponse.ok(travelRepository.findByMember(member)
+		List<TravelHistoryResponse> result = travelRepository.findByMember(member)
 				.stream()
 				.map(TravelHistoryResponse::from)
-				.toList());
+				.toList();
+
+		return ApiResponse.ok(result);
 	}
 
 	@Override
 	@Transactional
-	public ApiResponse<AttractionsResponse> attractionsHistory(HttpServletRequest httpServletRequest,
-											 Long travelId,
-											 AttractionsHistoryRequest attractionsHistoryRequest,
-											 MultipartFile multipartFile) {
+	public ApiResponse<AttractionsResponse> attractionsHistory(
+			HttpServletRequest httpServletRequest,
+			Long travelId,
+			String requestJson,
+			MultipartFile multipartFile
+	) {
 		try {
-			Member member = getNicknameFromToken(httpServletRequest);
+			AttractionsHistoryRequest attractionsHistoryRequest =
+					objectMapper.readValue(requestJson, AttractionsHistoryRequest.class);
+
+			Member member = getMemberFromToken(httpServletRequest);
 
 			Travel travel = travelRepository.findById(travelId)
 					.orElseThrow(() -> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
 
-			if (!travel.getMember().getId().equals(member.getId())) {
-				throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
+			validateTravelOwner(travel, member);
+
+			String photoUrl = null;
+
+			if (multipartFile != null && !multipartFile.isEmpty()) {
+				Path uploadDirectory = Paths.get(directory).toAbsolutePath().normalize();
+				if (!Files.exists(uploadDirectory)) {
+					Files.createDirectories(uploadDirectory);
+				}
+
+				String rawName = StringUtils.cleanPath(
+						Objects.requireNonNull(multipartFile.getOriginalFilename())
+				);
+				String fileName = UUID.randomUUID() + "_" + rawName;
+
+				Path targetPath = uploadDirectory.resolve(fileName).normalize();
+				if (!targetPath.startsWith(uploadDirectory)) {
+					throw new ApplicationException(TravelStatusCode.FILE_UPLOAD_FAILED);
+				}
+
+				multipartFile.transferTo(targetPath.toFile());
+				photoUrl = "/photos/" + fileName;
 			}
-
-			Path setDirectory = Paths.get(directory).toAbsolutePath().normalize();
-			if (!Files.exists(setDirectory)) {
-				Files.createDirectories(setDirectory);
-			}
-
-			String rawName = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-			String fileName = UUID.randomUUID() + "_" + rawName;
-
-			Path targetPath = setDirectory.resolve(fileName).normalize();
-
-			if (!targetPath.startsWith(setDirectory)) {
-				throw new ApplicationException(TravelStatusCode.UNKNOWN_ERROR);
-			}
-
-			multipartFile.transferTo(targetPath.toFile());
-
-			String photoURL = "/photos/" + fileName;
 
 			Attractions attractions = Attractions.builder()
 					.travel(travel)
 					.duration(attractionsHistoryRequest.duration())
-					.photoURL(photoURL)
 					.detail(attractionsHistoryRequest.detail())
+					.photoURL(photoUrl)
 					.createdAt(LocalDateTime.now())
 					.build();
 
 			attractionsRepository.save(attractions);
 
 			return ApiResponse.ok(AttractionsResponse.of("저장했습니다."));
-
+		} catch (ApplicationException e) {
+			throw e;
+		} catch (JsonProcessingException e) {
+			throw new ApplicationException(TravelStatusCode.INVALID_ATTRACTION_REQUEST);
+		} catch (IOException e) {
+			throw new ApplicationException(TravelStatusCode.FILE_UPLOAD_FAILED);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new ApplicationException(TravelStatusCode.UNKNOWN_ERROR);
 		}
 	}
 
 	@Override
-	public List<GetAttractionsResponse> getAttractionsHistory(HttpServletRequest httpServletRequest,
-															  Long travelId) {
-		Member member = getNicknameFromToken(httpServletRequest);
+	@Transactional(readOnly = true)
+	public List<GetAttractionsResponse> getAttractionsHistory(
+			HttpServletRequest httpServletRequest,
+			Long travelId
+	) {
+		Member member = getMemberFromToken(httpServletRequest);
 
-		Travel travel = travelRepository.findById(travelId).orElseThrow(()
-				-> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
+		Travel travel = travelRepository.findById(travelId)
+				.orElseThrow(() -> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
 
-		if (!travel.getMember().getId().equals(member.getId())) {
-			throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
-		}
+		validateTravelOwner(travel, member);
 
 		return attractionsRepository.findByTravelIdOrderByCreatedAtDesc(travelId)
 				.stream()
@@ -193,39 +224,44 @@ public class TravelServiceImpl implements TravelService {
 				.toList();
 	}
 
-	public Member getNicknameFromToken(HttpServletRequest servletRequest) {
+	private Member getMemberFromToken(HttpServletRequest servletRequest) {
 		String token = jwtProvider.resolveToken(servletRequest);
+
 		if (token == null || !jwtProvider.validateToken(token)) {
 			throw new ApplicationException(AuthStatusCode.INVALID_TOKEN);
 		}
 
 		String nickname = jwtProvider.getNickname(token);
 
-		return memberRepository.findByNickname(nickname).orElseThrow(()
-				-> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
+		return memberRepository.findByNickname(nickname)
+				.orElseThrow(() -> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
 	}
 
-	private TravelStatus validDateAndSetTravelStatus(Long memberId,
-													 LocalDate startDate,
-													 LocalDate endDate) {
+	private void validateTravelOwner(Travel travel, Member member) {
+		if (!travel.getMember().getId().equals(member.getId())) {
+			throw new ApplicationException(TravelStatusCode.FORBIDDEN_TRAVEL_ACCESS);
+		}
+	}
 
+	private TravelStatus validDateAndSetTravelStatus(
+			Long memberId,
+			LocalDate startDate,
+			LocalDate endDate
+	) {
 		LocalDate today = LocalDate.now();
 
 		if (endDate.isBefore(startDate)) {
-			throw new ApplicationException(TravelStatusCode.WRONG_END_DATE);
+			throw new ApplicationException(TravelStatusCode.END_DATE_BEFORE_START_DATE);
 		}
 
-		travelRepository.findOverlappingActiveTravel(
-				memberId,
-				startDate,
-				endDate
-				).ifPresent(travel -> {
+		travelRepository.findOverlappingActiveTravel(memberId, startDate, endDate)
+				.ifPresent(travel -> {
 					throw new ApplicationException(
 							travel.getTravelStatus() == TravelStatus.TRAVELING
-							? TravelStatusCode.TRAVEL_ALREADY_STARTED
-							: TravelStatusCode.TRAVEL_ALREADY_PLANNED
+									? TravelStatusCode.TRAVEL_ALREADY_STARTED
+									: TravelStatusCode.TRAVEL_ALREADY_PLANNED
 					);
-		});
+				});
 
 		if (startDate.isBefore(today)) {
 			throw new ApplicationException(TravelStatusCode.WRONG_START_DATE);

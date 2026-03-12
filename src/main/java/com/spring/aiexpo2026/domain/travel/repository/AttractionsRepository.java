@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface AttractionsRepository extends JpaRepository<Attractions, Long> {
-
 	List<Attractions> findByTravelIdOrderByCreatedAtDesc(Long travelId);
+	List<Attractions> findByTravelIdInOrderByCreatedAtDesc(List<Long> travelIds);
 }

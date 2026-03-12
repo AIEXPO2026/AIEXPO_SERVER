@@ -23,19 +23,14 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 	ORDER BY t.id
 	""")
 	Optional<Travel> findOverlappingActiveTravel(
-			@Param("memberId")
-			Long memberId,
-
-			@Param("startDate")
-			LocalDate startDate,
-
-			@Param("endDate")
-			LocalDate endDate
+			@Param("memberId") Long memberId,
+			@Param("startDate") LocalDate startDate,
+			@Param("endDate") LocalDate endDate
 	);
-
-	Optional<Travel> findById(Long id);
 
 	Optional<Travel> findByMemberAndTravelStatus(Member member, TravelStatus travelStatus);
 
 	List<Travel> findByMember(Member member);
+
+	List<Travel> findByMemberIdOrderByCreatedAtDesc(Long memberId);
 }
