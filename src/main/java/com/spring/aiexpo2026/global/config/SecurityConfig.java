@@ -28,33 +28,44 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) {
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.formLogin(AbstractHttpConfigurer::disable)
 				.csrf(AbstractHttpConfigurer::disable)
 				.cors(cors -> {})
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.sessionManagement(session ->
+						session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				)
 				.authorizeHttpRequests(auth ->
 						auth
 								.requestMatchers(
-										"/auth/signup", "/auth/signin",
-										"/auth/email/send", "/auth/email/verify", "/auth/signup/email/verify",
+										"/auth/signup",
+										"/auth/signin",
+										"/auth/email/send",
+										"/auth/email/verify",
+										"/auth/signup/email/verify",
 										"/auth/password/reset",
-										"/swagger-ui/**", "/v3/api-docs/**",
-										"/actuator/health", "/actuator/health/**"
+										"/swagger-ui/**",
+										"/v3/api-docs/**",
+										"/actuator/health",
+										"/actuator/health/**"
 								).permitAll()
 
 								.requestMatchers(
 										"/auth/password",
 										"/auth/signout",
-										"/travel/start", "/travel/finish",
+										"/travel/start",
+										"/travel/finish",
 										"/travel/edit/**",
-										"/travel/my"
-										).hasAnyAuthority("USER", "ADMIN")
+										"/travel/my",
+										"/trip/**"
+								).hasAnyAuthority("USER", "ADMIN")
+
 								.anyRequest().authenticated()
 				)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
 		return http.build();
 	}
 
