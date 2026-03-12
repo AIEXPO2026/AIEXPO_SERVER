@@ -190,3 +190,8 @@ gradle-app.setting
 .idea/*.iml
 .idea/.name
 .idea/vcs.xml
+
+.idea/
+*.iml
+
+photos/
