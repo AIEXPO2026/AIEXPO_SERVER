@@ -1,17 +1,18 @@
 package com.spring.aiexpo2026.domain.auth.service.impl;
 
 import com.spring.aiexpo2026.domain.auth.dto.request.*;
-import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.*;
 import com.spring.aiexpo2026.domain.auth.entity.Role;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
 import com.spring.aiexpo2026.domain.auth.service.TokenService;
-import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
-import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
-import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
 import com.spring.aiexpo2026.domain.auth.entity.Member;
 import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.auth.service.MemberService;
+import com.spring.aiexpo2026.domain.blog.repository.BlogRepository;
+import com.spring.aiexpo2026.domain.bookmark.repository.BookmarkRepository;
+import com.spring.aiexpo2026.domain.travel.repository.AttractionsRepository;
+import com.spring.aiexpo2026.domain.travel.repository.TravelRepository;
 import com.spring.aiexpo2026.global.data.ApiResponse;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,11 @@ import java.util.Objects;
 public class MemberServiceImpl implements MemberService {
 
 	private final MemberRepository memberRepository;
+	private final TravelRepository travelRepository;
+	private final AttractionsRepository attractionsRepository;
+	private final BlogRepository blogRepository;
+	private final BookmarkRepository bookmarkRepository;
+
 	private final PasswordEncoder passwordEncoder;
 
 	private final TokenService tokenService;
@@ -81,6 +87,23 @@ public class MemberServiceImpl implements MemberService {
 		tokenService.deleteAccessToken(httpServletRequest, httpServletResponse);
 
 		return ApiResponse.ok(SignOutResponse.of("로그아웃 되었습니다."));
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest,
+														  HttpServletResponse httpServletResponse) {
+		Member member = getMemberFromToken(httpServletRequest);
+
+		attractionsRepository.deleteByTravelMemberId(member.getId());
+		travelRepository.deleteByMemberId(member.getId());
+		bookmarkRepository.deleteByMemberId(member.getId());
+		blogRepository.deleteByMemberId(member.getId());
+		memberRepository.deleteById(member.getId());
+
+		tokenService.deleteAccessToken(httpServletRequest, httpServletResponse);
+
+		return ApiResponse.ok(DeleteMemberResponse.of("탈퇴되었습니다."));
 	}
 
 	@Override

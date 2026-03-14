@@ -31,6 +31,7 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 	Optional<Travel> findByMemberAndTravelStatus(Member member, TravelStatus travelStatus);
 
 	List<Travel> findByMember(Member member);
+	void deleteByMemberId(Long memberId);
 
 	List<Travel> findByMemberIdOrderByCreatedAtDesc(Long memberId);
 }

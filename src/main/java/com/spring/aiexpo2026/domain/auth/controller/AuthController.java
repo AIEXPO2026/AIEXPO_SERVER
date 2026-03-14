@@ -2,6 +2,7 @@ package com.spring.aiexpo2026.domain.auth.controller;
 
 import com.spring.aiexpo2026.domain.auth.dto.request.*;
 import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.DeleteMemberResponse;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
 import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
@@ -37,6 +38,13 @@ public class AuthController {
 	public ApiResponse<SignOutResponse> signOut(HttpServletRequest httpServletRequest,
 												HttpServletResponse httpServletResponse) {
 		return memberService.signOut(httpServletRequest, httpServletResponse);
+	}
+
+	@DeleteMapping("/delete")
+	public ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest,
+														  HttpServletResponse httpServletResponse) {
+
+		return memberService.deleteMember(httpServletRequest, httpServletResponse);
 	}
 
 	@PostMapping("/email/send")
