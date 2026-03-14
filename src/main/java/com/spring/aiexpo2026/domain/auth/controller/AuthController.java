@@ -41,9 +41,10 @@ public class AuthController {
 	}
 
 	@DeleteMapping("/delete")
-	public ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest) {
+	public ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest,
+														  HttpServletResponse httpServletResponse) {
 
-		return memberService.deleteMember(httpServletRequest);
+		return memberService.deleteMember(httpServletRequest, httpServletResponse);
 	}
 
 	@PostMapping("/email/send")
