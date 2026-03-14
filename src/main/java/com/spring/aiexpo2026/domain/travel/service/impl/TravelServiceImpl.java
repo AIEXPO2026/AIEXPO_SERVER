@@ -100,7 +100,7 @@ public class TravelServiceImpl implements TravelService {
 		travel.updateEndDate(LocalDate.now());
 		travel.updateTravelStatus(TravelStatus.TRAVEL_FINISHED);
 
-		return ApiResponse.ok(FinishTravelResponse.of("여행이 종료되었습니다."));
+		return ApiResponse.ok(FinishTravelResponse.of(travel.getId(), "여행이 종료되었습니다."));
 	}
 
 	@Override
