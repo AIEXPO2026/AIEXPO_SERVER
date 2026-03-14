@@ -1,5 +1,6 @@
 package com.spring.aiexpo2026.domain.auth.entity;
 
+import com.spring.aiexpo2026.domain.auth.dto.request.ChangeNicknameRequest;
 import com.spring.aiexpo2026.domain.auth.dto.request.ChangePasswordRequest;
 import com.spring.aiexpo2026.domain.auth.dto.request.ResetPasswordRequest;
 import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
@@ -60,6 +61,10 @@ public class Member {
 		}
 
 		this.passwordHash = passwordEncoder.encode(request.newPassword());
+	}
+
+	public void changeNickname(ChangeNicknameRequest changeNicknameRequest) {
+		this.nickname = changeNicknameRequest.newNickname();
 	}
 
 	public void resetPassword(String passwordHash) {
