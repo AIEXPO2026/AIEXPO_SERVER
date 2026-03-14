@@ -1,4 +1,4 @@
-TRUNCATE TABLE country;
+DELETE FROM country;
 
 INSERT INTO country (name, resorts, rating, visit_count, image_url, country_theme) VALUES
 ('대한민국', '경주', 0.0, 0, NULL, 'HISTORY'),
