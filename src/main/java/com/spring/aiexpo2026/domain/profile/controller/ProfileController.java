@@ -37,12 +37,13 @@ public class ProfileController {
         return bookmarkService.getBookmarks(userDetails.getUsername());
     }
 
-    @DeleteMapping("/bookmark/{destinationId}")
+    @DeleteMapping("/bookmark/{id}")
     public ApiResponse<Void> deleteBookmark(
             @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long destinationId
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean isCountry
     ) {
-        return bookmarkService.deleteBookmark(userDetails.getUsername(), destinationId);
+        return bookmarkService.deleteBookmark(userDetails.getUsername(), id, isCountry);
     }
 
     @GetMapping("/credit")

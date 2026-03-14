@@ -1,6 +1,7 @@
 package com.spring.aiexpo2026.domain.bookmark.entity;
 
 import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.ranking.entity.Country;
 import com.spring.aiexpo2026.domain.travel.entity.Destination;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,10 @@ public class Bookmark {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "destination_id", nullable = false)
     private Destination destination;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "country_id")
+    private Country country;
 
     private LocalDateTime createdAt;
 }

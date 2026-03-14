@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class AddBookmarkRequest {
     private Long destinationId;
+    private Long countryId;
 }

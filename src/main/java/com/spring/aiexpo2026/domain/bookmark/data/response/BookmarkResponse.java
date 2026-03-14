@@ -16,6 +16,10 @@ public class BookmarkResponse {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private BigDecimal baseScore;
+    private Long countryId;
+    private String countryName;
+    private String imageUrl;
+    private double rating;
 
     public static BookmarkResponse from(Bookmark bookmark) {
         return new BookmarkResponse(
@@ -25,7 +29,11 @@ public class BookmarkResponse {
                 bookmark.getDestination().getCity(),
                 bookmark.getDestination().getLatitude(),
                 bookmark.getDestination().getLongitude(),
-                bookmark.getDestination().getBaseScore()
+                bookmark.getDestination().getBaseScore(),
+                bookmark.getCountry().getId(),
+                bookmark.getCountry().getName(),
+                bookmark.getCountry().getImageUrl(),
+                bookmark.getCountry().getRating()
         );
     }
 }

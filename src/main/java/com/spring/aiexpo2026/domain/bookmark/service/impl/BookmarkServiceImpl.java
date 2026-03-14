@@ -9,6 +9,8 @@ import com.spring.aiexpo2026.domain.bookmark.entity.Bookmark;
 import com.spring.aiexpo2026.domain.bookmark.exception.BookmarkStatusCode;
 import com.spring.aiexpo2026.domain.bookmark.repository.BookmarkRepository;
 import com.spring.aiexpo2026.domain.bookmark.service.BookmarkService;
+import com.spring.aiexpo2026.domain.ranking.entity.Country;
+import com.spring.aiexpo2026.domain.ranking.repository.CountryRepository;
 import com.spring.aiexpo2026.domain.travel.entity.Destination;
 import com.spring.aiexpo2026.domain.travel.exception.TravelStatusCode;
 import com.spring.aiexpo2026.domain.travel.repository.DestinationRepository;
@@ -27,6 +29,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final MemberRepository memberRepository;
     private final DestinationRepository destinationRepository;
+    private final CountryRepository countryRepository;
 
     @Override
     @Transactional
@@ -34,18 +37,35 @@ public class BookmarkServiceImpl implements BookmarkService {
         Member member = memberRepository.findByNickname(nickname)
                 .orElseThrow(() -> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
 
-        if (bookmarkRepository.existsByMember_IdAndDestination_Id(member.getId(), request.getDestinationId())) {
-            throw new ApplicationException(BookmarkStatusCode.DESTINATION_ALREADY_BOOKMARKED);
+        Bookmark bookmark;
+
+        if (request.getCountryId() != null) {
+            if (bookmarkRepository.existsByMember_IdAndCountry_Id(member.getId(), request.getCountryId())) {
+                throw new ApplicationException(BookmarkStatusCode.DESTINATION_ALREADY_BOOKMARKED);
+            }
+            Country country = countryRepository.findById(request.getCountryId())
+                    .orElseThrow(() -> new ApplicationException(BookmarkStatusCode.CANNOT_FIND_BOOKMARK));
+
+            bookmark = Bookmark.builder()
+                    .member(member)
+                    .country(country)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+        } else {
+            if (bookmarkRepository.existsByMember_IdAndDestination_Id(member.getId(), request.getDestinationId())) {
+                throw new ApplicationException(BookmarkStatusCode.DESTINATION_ALREADY_BOOKMARKED);
+            }
+            Destination destination = destinationRepository.findById(request.getDestinationId())
+                    .orElseThrow(() -> new ApplicationException(BookmarkStatusCode.CANNOT_FIND_BOOKMARK));
+
+            bookmark = Bookmark.builder()
+                    .member(member)
+                    .destination(destination)
+                    .createdAt(LocalDateTime.now())
+                    .build();
         }
 
-        Destination destination = destinationRepository.findById(request.getDestinationId())
-                .orElseThrow(() -> new ApplicationException(TravelStatusCode.CANNOT_FIND_TRAVEL));
-
-        Bookmark bookmark = Bookmark.builder()
-                .member(member)
-                .destination(destination)
-                .createdAt(LocalDateTime.now())
-                .build();
         bookmarkRepository.save(bookmark);
         return ApiResponse.ok(null);
     }
@@ -66,14 +86,22 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional
-    public ApiResponse<Void> deleteBookmark(String nickname, Long destinationId) {
+    public ApiResponse<Void> deleteBookmark(String nickname, Long id, boolean isCountry) {
         Member member = memberRepository.findByNickname(nickname)
                 .orElseThrow(() -> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
 
-        if (!bookmarkRepository.existsByMember_IdAndDestination_Id(member.getId(), destinationId)) {
-            throw new ApplicationException(BookmarkStatusCode.CANNOT_FIND_BOOKMARK);
+        if (isCountry) {
+            if (!bookmarkRepository.existsByMember_IdAndCountry_Id(member.getId(), id)) {
+                throw new ApplicationException(BookmarkStatusCode.CANNOT_FIND_BOOKMARK);
+            }
+            bookmarkRepository.deleteByMember_IdAndCountry_Id(member.getId(), id);
+        } else {
+            if (!bookmarkRepository.existsByMember_IdAndDestination_Id(member.getId(), id)) {
+                throw new ApplicationException(BookmarkStatusCode.CANNOT_FIND_BOOKMARK);
+            }
+            bookmarkRepository.deleteByMember_IdAndDestination_Id(member.getId(), id);
         }
-        bookmarkRepository.deleteByMember_IdAndDestination_Id(member.getId(), destinationId);
+
         return ApiResponse.ok(null);
     }
 }
