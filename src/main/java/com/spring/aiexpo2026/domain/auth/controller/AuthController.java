@@ -1,10 +1,7 @@
 package com.spring.aiexpo2026.domain.auth.controller;
 
 import com.spring.aiexpo2026.domain.auth.dto.request.*;
-import com.spring.aiexpo2026.domain.auth.dto.response.ChangePasswordResponse;
-import com.spring.aiexpo2026.domain.auth.dto.response.SignUpResponse;
-import com.spring.aiexpo2026.domain.auth.dto.response.SignInResponse;
-import com.spring.aiexpo2026.domain.auth.dto.response.SignOutResponse;
+import com.spring.aiexpo2026.domain.auth.dto.response.*;
 import com.spring.aiexpo2026.domain.auth.service.EmailService;
 import com.spring.aiexpo2026.domain.auth.service.MemberService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
@@ -39,6 +36,13 @@ public class AuthController {
 		return memberService.signOut(httpServletRequest, httpServletResponse);
 	}
 
+	@DeleteMapping("/delete")
+	public ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest,
+														  HttpServletResponse httpServletResponse) {
+
+		return memberService.deleteMember(httpServletRequest, httpServletResponse);
+	}
+
 	@PostMapping("/email/send")
 	public void sendEmail(@Valid @RequestBody final SendEmailRequest request) {
 		emailService.sendEmail(request);
@@ -54,10 +58,25 @@ public class AuthController {
 		return emailService.verifyEmailForSignUp(verifyEmailRequest);
 	}
 
+	@PutMapping("/nickname")
+	public ApiResponse<ChangeNicknameResponse> changeNickname(HttpServletRequest httpServletRequest,
+															  HttpServletResponse httpServletResponse,
+															  @Valid @RequestBody final ChangeNicknameRequest changeNicknameRequest) {
+
+		return memberService.changeNickname(
+				httpServletRequest,
+				httpServletResponse,
+				changeNicknameRequest
+		);
+	}
+
 	@PutMapping("/password")
 	public ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
 															  @Valid @RequestBody final ChangePasswordRequest request) {
-		return memberService.changePassword(httpServletRequest, request);
+		return memberService.changePassword(
+				httpServletRequest,
+				request
+		);
 	}
 
 	@PostMapping("/password/reset")
