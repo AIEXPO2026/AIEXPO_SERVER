@@ -13,6 +13,10 @@ public interface MemberService {
 	ApiResponse<SignInResponse> signIn(SignInRequest request,
 									   HttpServletResponse response);
 
+	ApiResponse<ChangeNicknameResponse> changeNickname(HttpServletRequest httpServletRequest,
+													   HttpServletResponse httpServletResponse,
+													   ChangeNicknameRequest changeNicknameRequest);
+
 	ApiResponse<ChangePasswordResponse> changePassword(HttpServletRequest httpServletRequest,
 													   ChangePasswordRequest request);
 

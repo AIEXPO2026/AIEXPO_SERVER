@@ -81,6 +81,30 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public ApiResponse<ChangeNicknameResponse> changeNickname(HttpServletRequest httpServletRequest,
+										 HttpServletResponse httpServletResponse,
+										 ChangeNicknameRequest changeNicknameRequest) {
+		Member member = getMemberFromToken(httpServletRequest);
+
+		if (memberRepository.existsByNickname(changeNicknameRequest.newNickname())) {
+			throw new ApplicationException(AuthStatusCode.USERNAME_ALREADY_EXIST);
+		}
+
+		if (!passwordEncoder.matches(changeNicknameRequest.passwordHash(), member.getPasswordHash())) {
+			throw new ApplicationException(AuthStatusCode.INVALID_CREDENTIALS);
+		}
+
+		member.changeNickname(
+				changeNicknameRequest
+		);
+
+		tokenService.deleteAccessToken(httpServletRequest, httpServletResponse);
+
+		return ApiResponse.ok(ChangeNicknameResponse.of("사용자명이 변경되었습니다. 다시 로그인 해주세요."));
+	}
+
+	@Override
 	public ApiResponse<SignOutResponse> signOut(HttpServletRequest httpServletRequest,
 												HttpServletResponse httpServletResponse) {
 		getMemberFromToken(httpServletRequest);
