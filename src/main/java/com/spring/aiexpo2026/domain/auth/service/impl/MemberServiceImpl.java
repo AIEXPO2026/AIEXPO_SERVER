@@ -91,7 +91,8 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest) {
+	public ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest,
+														  HttpServletResponse httpServletResponse) {
 		Member member = getMemberFromToken(httpServletRequest);
 
 		attractionsRepository.deleteByTravelMemberId(member.getId());
@@ -99,6 +100,8 @@ public class MemberServiceImpl implements MemberService {
 		bookmarkRepository.deleteByMemberId(member.getId());
 		blogRepository.deleteByMemberId(member.getId());
 		memberRepository.deleteById(member.getId());
+
+		tokenService.deleteAccessToken(httpServletRequest, httpServletResponse);
 
 		return ApiResponse.ok(DeleteMemberResponse.of("탈퇴되었습니다."));
 	}

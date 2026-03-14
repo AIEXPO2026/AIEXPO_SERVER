@@ -21,5 +21,6 @@ public interface MemberService {
 	ApiResponse<SignOutResponse> signOut(HttpServletRequest request,
 										 HttpServletResponse response);
 
-	ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest);
+	ApiResponse<DeleteMemberResponse> deleteMember(HttpServletRequest httpServletRequest,
+												   HttpServletResponse httpServletResponse);
 }
