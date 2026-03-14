@@ -11,5 +11,5 @@ public interface BookmarkService {
 
     ApiResponse<List<BookmarkResponse>> getBookmarks(String username);
 
-    ApiResponse<Void> deleteBookmark(String username, Long destinationId);
+    ApiResponse<Void> deleteBookmark(String username, Long destinationId,boolean isCountry);
 }
