@@ -5,8 +5,8 @@ import com.spring.aiexpo2026.domain.trip.dto.request.CustomizeCourseRequest;
 import com.spring.aiexpo2026.domain.trip.dto.request.DailyPlanRequest;
 import com.spring.aiexpo2026.domain.trip.dto.request.SuperSearchRequest;
 import com.spring.aiexpo2026.domain.trip.dto.request.ThemeSearchRequest;
-import com.spring.aiexpo2026.domain.trip.dto.response.CourseResponse;
 import com.spring.aiexpo2026.domain.trip.dto.response.DailyPlanResponse;
+import com.spring.aiexpo2026.domain.trip.dto.response.SavedCourseResponse;
 import com.spring.aiexpo2026.domain.trip.dto.response.TravelSearchResponse;
 import com.spring.aiexpo2026.domain.trip.service.TripService;
 import com.spring.aiexpo2026.global.data.ApiResponse;
@@ -58,20 +58,20 @@ public class TripController {
     }
 
     @PostMapping("/course/location")
-    public ApiResponse<CourseResponse> createCourse(
+    public ApiResponse<SavedCourseResponse> createCourse(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestBody CourseRequest request
     ) {
         Long memberId = memberDetails.getMember().getId();
-        return ApiResponse.ok(tripService.createCourse(memberId, request));
+        return ApiResponse.ok(tripService.createCourseAndSave(memberId, request));
     }
 
     @PostMapping("/course/customize")
-    public ApiResponse<CourseResponse> customizeCourse(
+    public ApiResponse<SavedCourseResponse> customizeCourse(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestBody CustomizeCourseRequest request
     ) {
         Long memberId = memberDetails.getMember().getId();
-        return ApiResponse.ok(tripService.customizeCourse(memberId, request));
+        return ApiResponse.ok(tripService.customizeCourseAndSave(memberId, request));
     }
 }
