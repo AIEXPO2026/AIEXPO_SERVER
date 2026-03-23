@@ -45,7 +45,7 @@ public class AiTripClient {
 
     public TravelSearchResponse recommend() {
         return aiWebClient.get()
-                .uri("/recommend")
+                .uri("/search/recommend")
                 .retrieve()
                 .bodyToMono(TravelSearchResponse.class)
                 .onErrorMap(e -> new ApplicationException(CommonStatusCode.INTERNAL_SERVER_ERROR))
@@ -74,9 +74,9 @@ public class AiTripClient {
                 .block();
     }
 
-    public CourseResponse customizeCourse(Long memberId, AiCustomizeCourseRequest request) {
+    public CourseResponse customizeCourse(AiCustomizeCourseRequest request) {
         return aiWebClient.post()
-                .uri("/course/customize/member/{memberId}", memberId)
+                .uri("/course/customize")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()

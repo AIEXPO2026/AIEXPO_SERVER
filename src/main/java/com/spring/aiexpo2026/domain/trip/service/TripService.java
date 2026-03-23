@@ -1,5 +1,8 @@
 package com.spring.aiexpo2026.domain.trip.service;
 
+import com.spring.aiexpo2026.domain.auth.entity.Member;
+import com.spring.aiexpo2026.domain.auth.exception.AuthStatusCode;
+import com.spring.aiexpo2026.domain.auth.repository.MemberRepository;
 import com.spring.aiexpo2026.domain.trip.dto.request.AiCustomizeCourseRequest;
 import com.spring.aiexpo2026.domain.trip.dto.request.CourseRequest;
 import com.spring.aiexpo2026.domain.trip.dto.request.CustomizeCourseRequest;
@@ -8,6 +11,7 @@ import com.spring.aiexpo2026.domain.trip.dto.request.SuperSearchRequest;
 import com.spring.aiexpo2026.domain.trip.dto.request.ThemeSearchRequest;
 import com.spring.aiexpo2026.domain.trip.dto.response.CourseResponse;
 import com.spring.aiexpo2026.domain.trip.dto.response.DailyPlanResponse;
+import com.spring.aiexpo2026.domain.trip.dto.response.SavedCourseResponse;
 import com.spring.aiexpo2026.domain.trip.dto.response.TravelSearchResponse;
 import com.spring.aiexpo2026.domain.trip.infrastructure.AiTripClient;
 import com.spring.aiexpo2026.domain.travel.entity.Attractions;
@@ -15,11 +19,11 @@ import com.spring.aiexpo2026.domain.travel.entity.Travel;
 import com.spring.aiexpo2026.domain.travel.repository.AttractionsRepository;
 import com.spring.aiexpo2026.domain.travel.repository.TravelRepository;
 import com.spring.aiexpo2026.global.exception.ApplicationException;
-import com.spring.aiexpo2026.global.exception.statuscode.CommonStatusCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +37,7 @@ public class TripService {
     private final AiTripClient aiTripClient;
     private final TravelRepository travelRepository;
     private final AttractionsRepository attractionsRepository;
+    private final MemberRepository memberRepository;
 
     public TravelSearchResponse superSearch(Long memberId, SuperSearchRequest request) {
         return aiTripClient.superSearch(request);
@@ -50,15 +55,19 @@ public class TripService {
         return aiTripClient.dailyPlan(request);
     }
 
-    public CourseResponse createCourse(Long memberId, CourseRequest request) {
-        return aiTripClient.createCourse(request);
+    @Transactional
+    public SavedCourseResponse createCourseAndSave(Long memberId, CourseRequest request) {
+        CourseResponse aiResponse = aiTripClient.createCourse(request);
+        Long travelId = saveCourse(memberId, aiResponse);
+        return new SavedCourseResponse(travelId, aiResponse.course());
     }
 
-    public CourseResponse customizeCourse(Long memberId, CustomizeCourseRequest request) {
+    @Transactional
+    public SavedCourseResponse customizeCourseAndSave(Long memberId, CustomizeCourseRequest request) {
         List<Travel> travels = travelRepository.findByMemberIdOrderByCreatedAtDesc(memberId);
 
         if (travels.isEmpty()) {
-            throw new ApplicationException(CommonStatusCode.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER);
         }
 
         List<Long> travelIds = travels.stream()
@@ -74,10 +83,6 @@ public class TripService {
                         Collectors.toCollection(LinkedHashSet::new),
                         List::copyOf
                 ));
-
-        if (savedPlaces.isEmpty()) {
-            throw new ApplicationException(CommonStatusCode.INTERNAL_SERVER_ERROR);
-        }
 
         List<Integer> moods = travels.stream()
                 .map(Travel::getMood)
@@ -119,6 +124,38 @@ public class TripService {
                 )
         );
 
-        return aiTripClient.customizeCourse(memberId, aiRequest);
+        CourseResponse aiResponse = aiTripClient.customizeCourse(aiRequest);
+        Long travelId = saveCourse(memberId, aiResponse);
+
+        return new SavedCourseResponse(travelId, aiResponse.course());
+    }
+
+    @Transactional
+    protected Long saveCourse(Long memberId, CourseResponse response) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApplicationException(AuthStatusCode.CANNOT_FIND_MEMBER));
+
+        Travel travel = Travel.builder()
+                .member(member)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        Travel savedTravel = travelRepository.save(travel);
+
+        List<Attractions> attractions = response.course().stream()
+                .map(item -> toAttraction(savedTravel, item))
+                .toList();
+
+        attractionsRepository.saveAll(attractions);
+
+        return savedTravel.getId();
+    }
+
+    private Attractions toAttraction(Travel travel, CourseResponse.CourseItem item) {
+        return Attractions.builder()
+                .travel(travel)
+                .detail(item.place())
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }
